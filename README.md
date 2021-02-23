@@ -13,9 +13,9 @@
 
 ## Install Conan packages, generate CMake files and build
 
-For now update profile.txt to contain the Build Config mode [`Debug` or `Release]
+For now update profile.txt to contain the Build Config mode [`Debug` or `Release`]
 
-```Powershell
+```Bash
 # cd into build location
 cd build/<build-confiuration> -> so: cd build/x64-Debug
 

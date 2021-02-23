@@ -1,0 +1,12 @@
+/build
+/out
+/.vs
+/**/*.zip
+/lib/*/*
+/graph_info.json
+/conaninfo.txt
+/conanbuildinfo.txt
+/conanbuildinfo.cmake
+/conan.lock
+/src/out/build/x64-Debug
+/src/out/build/x64-Release

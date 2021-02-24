@@ -18,29 +18,37 @@ GUIsim::GUIsim()
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Michael Percivals", "Programmer"));
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Xiaorong Li", "Researcher"));
 
-	background = new GImage(GPath("Images/GUI/Background.png").transform()); //text on main menu
-	begin = new GImage(GPath("Images/GUI/BeginButton.png").transform()); //text on main menu
-	options = new GImage(GPath("Images/GUI/OptionsButton.png").transform()); //text on main menu
-	credits = new GImage(GPath("Images/GUI/CreditsButton.png").transform()); //text on main menu
-	mainTitle = new GImage(GPath("Images/GUI/MainTitle.png").transform()); //text on main menu
-	save = new GImage(GPath("Images/GUI/SaveButton.png").transform()); //text on main menu
-	menu = new GImage(GPath("Images/GUI/ResetButton.png").transform()); //text on end game
-	exit = new GImage(GPath("Images/GUI/ExitButton.png").transform()); //text on end game
-	table = new GImage(GPath("Images/GUI/Table.png").transform()); //background image for text
-	back = new GImage(GPath("Images/GUI/BackButton.png").transform()); //background image for text
-
-	_Prey = new GImage(GPath("Images/Sprites/8bit prey.png").transform());
-	_Pred = new GImage(GPath("Images/Sprites/8bit pred.png").transform());
-	_Prey2 = new GImage(GPath("Images/Sprites/8bit prey.png").transform());
-	_Pred2 = new GImage(GPath("Images/Sprites/8bit pred.png").transform());
-	_Berry = new GImage(GPath("Images/Sprites/8bit berry.png").transform());
-	_Rock = new GImage(GPath("Images/Sprites/8bit rock.png").transform());
-
-	_Prey2->resize(150, 150);
-	_Pred2->resize(150, 150);
-
+	this->textures.insert({
+		{ "background", this->loadTexture("assets/GUI/Background.png") },
+		{ "begin", this->loadTexture("assets/GUI/BeginButton.png") },
+		{ "options", this->loadTexture("assets/GUI/OptionsButton.png") },
+		{ "credits", this->loadTexture("assets/GUI/CreditsButton.png") },
+		{ "mainTitle", this->loadTexture("assets/GUI/MainTitle.png") },
+		{ "save", this->loadTexture("assets/GUI/SaveButton.png") },
+		{ "menu", this->loadTexture("assets/GUI/ResetButton.png") },
+		{ "exit", this->loadTexture("assets/GUI/ExitButton.png") },
+		{ "table", this->loadTexture("assets/GUI/Table.png") },
+		{ "back", this->loadTexture("assets/GUI/BackButton.png") },
+		{ "prey", this->loadTexture("assets/Sprites/8bit prey.png") },
+		{ "pred", this->loadTexture("assets/Sprites/8bit pred.png") },
+		{ "berry", this->loadTexture("assets/Sprites/8bit berry.png") },
+		{ "rock", this->loadTexture("assets/Sprites/8bit rock.png") },
+	});
 }
-unsigned int GUIsim::statusBar(GWindow & Gwin)
+
+std::shared_ptr<sf::Texture> GUIsim::loadTexture(std::string texturePath) const
+{
+	auto texture = std::make_shared<sf::Texture>();
+	texture->loadFromFile(texturePath);
+	return texture;
+}
+
+std::shared_ptr<sf::Texture> GUIsim::findTexture(std::string textureName) const
+{
+	return this->textures.at(textureName);
+}
+
+unsigned int GUIsim::statusBar(sf::RenderTarget& window)
 {
 	if(Mouse.isLeftDown() && (Mouse.y > Gwin.getHeight()-80) && (Mouse.y < Gwin.getHeight()-50)
 	&& (Mouse.x > (Gwin.getWidth()/2)-196) && (Mouse.x < (Gwin.getWidth()/2)+206))
@@ -115,7 +123,7 @@ void GUIsim::mouseEvent(int mouseX, int mouseY, GWindow& Gwin)
 	}
 }
 
-void GUIsim::drawMenu(GWindow & Gwin)
+void GUIsim::drawMenu(sf::RenderTarget& window)
 {
 	Gwin.drawImage(0, 0, background);
 	switch(currentScreen_)

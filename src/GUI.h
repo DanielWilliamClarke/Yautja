@@ -1,6 +1,8 @@
-#include "gwin.h"
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 #include "segment.h"
 
 #define BUTTONWIDTH 250
@@ -32,12 +34,12 @@ public:
 	bool simEnd;
 	bool simQuit;
 	GUIsim();
-	void mouseEvent(int mouseX, int mouseY, GWindow& Gwin);
+	void mouseEvent(int mouseX, int mouseY, sf::RenderTarget& window);
 	simSettings getSettings();
-	void drawMenu(GWindow & Gwin);
-	unsigned int statusBar(GWindow & Gwin);
-	void endGameScreen(GWindow& Gwin, std::pair<unsigned int, unsigned int> entities, int iterationCount);
-	void legend(GWindow& Gwin);
+	void drawMenu(sf::RenderTarget& window);
+	unsigned int statusBar(sf::RenderTarget& window);
+	void endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, unsigned int> entities, int iterationCount);
+	void legend(sf::RenderTarget& window);
 	void outPut(std::pair<unsigned int, unsigned int> entities, int iterationCount);
 	
 private:
@@ -47,30 +49,16 @@ private:
 	unsigned int defeatIteration_;
 	std::vector< std::pair<std::string, std::string> > teamAndRoles_;
 
-	void mainScreen_(GWindow& Gwin);
-	void optionScreen_(GWindow& Gwin);
-	void creditScreen_(GWindow& Gwin);
+	void mainScreen_(sf::RenderTarget& window);
+	void optionScreen_(sf::RenderTarget& window);
+	void creditScreen_(sf::RenderTarget& window);
 	
 	bool gameEnd();
 
-	GImage *background;
-	GImage *begin;
-	GImage *options;
-	GImage *credits;
-	GImage *mainTitle;
-	GImage *save;
-	GImage *menu;
-	GImage *exit;
-	GImage *table;
-	GImage *back;
-	GImage *done;
+	std::shared_ptr<sf::Texture> loadTexture(std::string texturePath) const;
+	std::shared_ptr<sf::Texture> findTexture(std::string textureName) const;
 
-	GImage *_Prey;
-	GImage *_Pred;
-	GImage *_Prey2;
-	GImage *_Pred2;
-	GImage *_Berry;
-	GImage *_Rock;
+	std::map<std::string, std::shared_ptr<sf::Texture>> textures;
 
 	bool isToggled_;
 };

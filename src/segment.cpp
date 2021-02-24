@@ -5,7 +5,6 @@
 // Date: 30/11/2011
 // Description: function library for the Segment class
 #pragma once
-#include "stdafx.h"
 #include "segment.h"
 
 Segment::Segment(void)

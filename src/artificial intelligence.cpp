@@ -5,7 +5,6 @@
 // Date: 30/11/2011
 // Description: function library for the ArtIntell class which is inherited by Predator and Prey
 
-#include "stdafx.h"
 #include "artificial intelligence.h"
 
 

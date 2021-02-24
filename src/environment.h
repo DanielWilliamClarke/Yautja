@@ -1,10 +1,12 @@
 #pragma once
 
-#include "segment.h"
+#include <SFML/Graphics.hpp>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include "segment.h"
 
 #define WIDTHBUFFER 200
 #define HEIGHTBUFFER 100
@@ -14,10 +16,10 @@ class Environment
 public:
 	//allow for changes in options
 
-	Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, GWindow & Gwin);
+	Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderTarget& window);
 	~Environment();
 	void populateGrid(int NUMOFPREY, AIPreferences& PreyPreferences, int NUMOFPRED, AIPreferences& PredPreferences);
-	void drawSimulation(GWindow& Gwin);
+	void drawSimulation(sf::RenderTarget& window);
 	void iterateSimulation(int  gameCount);
 
 	std::pair<unsigned int, unsigned int> getEntities();
@@ -35,11 +37,11 @@ private:
 
 	std::vector<Segment> _AIScopeSubArray(int xPos, int yPos, int AIScope);
 
-	GImage *_Grass;
-	GImage *_Berry;
-	GImage *_Rock;
-	GImage *_Prey;
-	GImage *_Pred;
+	std::shared_ptr<sf::Texture> _Grass;
+	std::shared_ptr<sf::Texture> _Berry;
+	std::shared_ptr<sf::Texture> _Rock;
+	std::shared_ptr<sf::Texture> _Prey;
+	std::shared_ptr<sf::Texture> _Pred;
 
 	int gridSize_;
 	int obstacles_;

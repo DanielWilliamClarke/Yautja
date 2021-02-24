@@ -4,10 +4,9 @@
 // Version: 1.0
 // Date: 30/11/2011
 // Description: function library for the Environment class
-#include "stdafx.h"
 #include "environment.h"
 
-Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, GWindow & Gwin)
+Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderTarget& window)
 {
 	int xTemp, yTemp;
 	srand(unsigned int(time(NULL)));
@@ -59,8 +58,8 @@ Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPre
 	_Prey = new GImage(GPath("Images/Sprites/8bit prey.png").transform());
 	_Pred = new GImage(GPath("Images/Sprites/8bit pred.png").transform());
 	
-	unsigned int imageWidth = (Gwin.getWidth()-WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
-	unsigned int imageHeight = (Gwin.getHeight()-HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
+	unsigned int imageWidth = (window.getView().getSize().x-WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
+	unsigned int imageHeight = (window.getView().getSize().y-HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
 
 	_Grass->resize(imageWidth, imageHeight);
 	_Berry->resize(imageWidth, imageHeight);

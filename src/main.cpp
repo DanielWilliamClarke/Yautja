@@ -1,18 +1,18 @@
-// Filename: main.cpp
-// Author: Alex Rudd
-// ID: N0321342
-// Version: 1.0
-// Date: 30/11/2011
-// Description: main
-#include "stdafx.h"
-#include "gwin.h"
+#include <memory>
+#include <chrono>
+#include <thread>
+#include <SFML/Graphics.hpp>
+
 #include "environment.h"
 #include "GUI.h"
 
 int main()
 {
-	GWindow Gwin(800, 700);
-	Gwin.showDebugOverlay(false);
+	auto window = std::make_shared<sf::RenderWindow>(
+		sf::VideoMode(800, 700),
+		"Yuatja",
+		sf::Style::Titlebar | sf::Style::Close);
+
 	GUIsim menu;
 	Environment* level;
 
@@ -25,45 +25,48 @@ int main()
 	{
 		while(!menu.gameStarted)
 		{
-			Gwin.clear();
-			menu.drawMenu(Gwin);
+			window->clear();
+			menu.drawMenu(window);
 
-			if(Mouse.isLeftDown())
-				menu.mouseEvent(Mouse.x, Mouse.y, Gwin);
-
-			Gwin.refresh();
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				auto position = sf::Mouse::getPosition();
+				menu.mouseEvent(position.x, position.y, window);
+			}
+				
+			window->display();
 		}
 
 		PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
-		level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, Gwin);
+		level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, window);
 		iterationCount = 0;
-		
+
+		sf::Text text;
+		text.setPosition(10.0f, 10.0f);
+		text.setFillColor(sf::Color::White);
+
 		while(!menu.isComplete(level->getEntities(), iterationCount))
 		{
-			Gwin.clear(DIMGRAY);
+			window->clear(sf::Color::Black);
 
 			level->iterateSimulation(iterationCount++);
-			level->drawSimulation(Gwin);
-			menu.legend(Gwin);
+			level->drawSimulation(window);
+			menu.legend(window);
 
-			Gsleep(menu.statusBar(Gwin));
+			auto sleepTime = menu.statusBar(window);
+			std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
-			Gwin.setPenColour(WHITE);
-			Gwin.writeText(10, Gwin.getHeight()-50, "Iteration:");
-			Gwin.writeInt(60, Gwin.getHeight()-50, iterationCount);
-			Gwin.writeString("/");
-			Gwin.writeInt(menu.getSettings().simTimeOut*100);
-			Gwin.setPenColour(BLUE);
+			text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
+			window->draw(text);
 
-			Gwin.refresh();
+			window->display();
 		}
 
 		while(!menu.simEnd)
 		{
-			Gwin.clear();
-			menu.endGameScreen(Gwin, level->getEntities(), iterationCount);
-
-			Gwin.refresh();
+			window->clear();
+			menu.endGameScreen(window, level->getEntities(), iterationCount);
+			window->display();
 		}
 		delete level;
 	}

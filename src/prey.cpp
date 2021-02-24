@@ -5,7 +5,6 @@
 // Date: 30/11/2011
 // Description: function library for the Prey class
 
-#include "stdafx.h"
 #include "prey.h"
 
 Prey::Prey(AIPreferences & Preferences, int identifier) : ArtIntell(Preferences, identifier)

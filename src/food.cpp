@@ -4,7 +4,6 @@
 // Version:
 // Date: 9th March
 // Description:
-#include "stdafx.h"
 #include "food.h"
 
 int Food::getTIP()

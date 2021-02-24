@@ -4,7 +4,6 @@
 // Version:
 // Date: 
 // Description:
-#include "stdafx.h"
 #include "lib.h"
 
 time_t NLS::secondsCurrent()

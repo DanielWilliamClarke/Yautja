@@ -521,64 +521,120 @@ bool GUIsim::isComplete(std::pair<unsigned int, unsigned int> entities, int iter
 
 void GUIsim::endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, unsigned int> entities, int iterationCount)
 {
-	Gwin.drawImage(0, 0, background);
-	//Main Window Title
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 10, mainTitle);
-	Gwin.drawImage(((Gwin.getWidth() / 2) - table->getWidth() / 2), 200, table);
+	auto windowSize = window.getView().getSize();
 
-	Gwin.setPenColour(WHITE);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 300, "Simulation Results");
+	sf::Sprite sprite;
+	sf::Text text;
+
+	sprite.setTexture(*this->findTexture("background"));
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition(0, 0);
+	window.draw(sprite);
+
+	auto mainTitleTexture = this->findTexture("mainTitle");
+	sprite.setTexture(*mainTitleTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
+	window.draw(sprite);
+
+	auto tableTexture = this->findTexture("table");
+	sprite.setTexture(*tableTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
+	window.draw(sprite);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 300);
+	text.setString("Simulation Results");
+	window.draw(text);
 
 	if (entities.first == 0)
 	{
-		Gwin.writeInt(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 325, entities.second);
-		Gwin.writeText(" Predators remained");
-		Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 350, "last Prey killed at: ");
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		text.setString(std::to_string(entities.second) + " Predators remained");
+		window.draw(text);
+
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+		text.setString("last Prey killed at: ");
+		window.draw(text);
 	}
 	else if (entities.second == 0)
 	{
-		Gwin.writeInt(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 325, entities.first);
-		Gwin.writeText(" Prey Survived");
-		Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 350, "last Predator died at: ");
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		text.setString(std::to_string(entities.first) + " Prey Survived");
+		window.draw(text);
+
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+		text.setString("last Predator killed at: ");
+		window.draw(text);
 	}
 	else
 	{
-		Gwin.writeInt(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 325, entities.first);
-		Gwin.writeText(" Prey Survived");
-		Gwin.writeInt(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 350, entities.second);
-		Gwin.writeText(" Predators remained");
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		text.setString(std::to_string(entities.first) + " Prey Survived");
+		window.draw(text);
+
+		text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+
+		text.setString(std::to_string(entities.second) + " Predators remained");
+		window.draw(text);
 	}
 
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2)), 375, "Game Time: ");
-	Gwin.writeInt(iterationCount);	Gwin.writeText(" iterations");
 
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 300, "Simulation Settings");
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 325, "GridSize: ");
-	Gwin.writeInt(simulationSettings_.gridSize);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 335, "Obstacles: ");
-	Gwin.writeInt(simulationSettings_.numOfObstacles);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 345, "Food: ");
-	Gwin.writeInt(simulationSettings_.numOfFood);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 355, "Predator: ");
-	Gwin.writeInt(simulationSettings_.numOfPred);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 365, "Prey: ");
-	Gwin.writeInt(simulationSettings_.numOfPrey);
-	Gwin.writeText(((Gwin.getWidth() / 2) - (mainTitle->getWidth() / 2) + 200), 375, "Time Out: ");
-	Gwin.writeInt(simulationSettings_.simTimeOut);
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 375);
+	text.setString("Game Time: " + std::to_string(iterationCount) + " iterations");
+	window.draw(text);
 
-	//draw save and restart button
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (save->getWidth() / 2)), Gwin.getHeight() - 170, menu);
-	//draw save and exit button
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (save->getWidth() / 2)), Gwin.getHeight() - 100, exit);
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 300);
+	text.setString("Simulation Settings");
+	window.draw(text);
 
-	if (Mouse.isLeftDown() && (Mouse.x > ((Gwin.getWidth() / 2) - (menu->getWidth() / 2))) && ((Mouse.x < Gwin.getWidth() / 2) + (menu->getWidth() / 2)))
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 325);
+	text.setString("GridSize: " + std::to_string(simulationSettings_.gridSize));
+	window.draw(text);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 335);
+	text.setString("Obstacles: " + std::to_string(simulationSettings_.numOfObstacles));
+	window.draw(text);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 345);
+	text.setString("Food: " + std::to_string(simulationSettings_.numOfFood));
+	window.draw(text);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 355);
+	text.setString("Predators: " + std::to_string(simulationSettings_.numOfPred));
+	window.draw(text);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 365);
+	text.setString("Prey: " + std::to_string(simulationSettings_.numOfPrey));
+	window.draw(text);
+
+	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 375);
+	text.setString("Timeout: " + std::to_string(simulationSettings_.simTimeOut));
+	window.draw(text);
+
+	auto menuTexture = this->findTexture("menu");
+	sprite.setTexture(*menuTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (menuTexture->getSize().x / 2), windowSize.y - 170);
+	window.draw(sprite);
+
+	auto exitTexture = this->findTexture("exit");
+	sprite.setTexture(*exitTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (exitTexture->getSize().x / 2), windowSize.y - 100);
+	window.draw(sprite);
+
+	auto position = sf::Mouse::getPosition();
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+		(position.x > ((windowSize.x / 2) - (menuTexture->getSize().x / 2))) &&
+		((position.x < windowSize.x / 2) + (menuTexture->getSize().x / 2)))
 	{
-		if ((Mouse.y > Gwin.getHeight() - 170) && (Mouse.y < (Gwin.getHeight() - 170) + menu->getHeight())) // Menu Button
+		if ((position.y > windowSize.y - 170) && (position.y < (windowSize.y - 170) + menuTexture->getSize().y)) // Menu Button
 		{
 			simEnd = true;
 			gameStarted = false;
 		}
-		else if ((Mouse.y > Gwin.getHeight() - 100) && (Mouse.y < (Gwin.getHeight() - 100) + exit->getHeight())) // Exit Button
+		else if ((position.y >windowSize.y - 100) && (position.y < (windowSize.y - 100) + exitTexture->getSize().y)) // Exit Button
 		{
 			simEnd = simQuit = true;
 		}

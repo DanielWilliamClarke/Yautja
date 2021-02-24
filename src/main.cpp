@@ -26,19 +26,19 @@ int main()
 		while(!menu.gameStarted)
 		{
 			window->clear();
-			menu.drawMenu(window);
+			menu.drawMenu(*window);
 
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				auto position = sf::Mouse::getPosition();
-				menu.mouseEvent(position.x, position.y, window);
+				menu.mouseEvent(position.x, position.y, *window);
 			}
 				
 			window->display();
 		}
 
 		PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
-		level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, window);
+		level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, *window);
 		iterationCount = 0;
 
 		sf::Text text;
@@ -50,10 +50,10 @@ int main()
 			window->clear(sf::Color::Black);
 
 			level->iterateSimulation(iterationCount++);
-			level->drawSimulation(window);
-			menu.legend(window);
+			level->drawSimulation(*window);
+			menu.legend(*window);
 
-			auto sleepTime = menu.statusBar(window);
+			auto sleepTime = menu.statusBar(*window);
 			std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
 			text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
@@ -65,7 +65,7 @@ int main()
 		while(!menu.simEnd)
 		{
 			window->clear();
-			menu.endGameScreen(window, level->getEntities(), iterationCount);
+			menu.endGameScreen(*window, level->getEntities(), iterationCount);
 			window->display();
 		}
 		delete level;

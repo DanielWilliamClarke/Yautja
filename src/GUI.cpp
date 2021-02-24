@@ -274,99 +274,230 @@ void GUIsim::creditScreen_(sf::RenderTarget& window)
 
 void GUIsim::optionScreen_(sf::RenderTarget& window)
 {
-	//Main Window Title
-	Gwin.drawImage(((Gwin.getWidth() / 2) - mainTitle->getWidth() / 2), 10, mainTitle);
+	auto windowSize = window.getView().getSize();
+	sf::RectangleShape reactangle;
+	sf::Sprite sprite;
+	sf::Text text;
+
+	auto mainTitleTexture = this->findTexture("mainTitle");
+	sprite.setTexture(*mainTitleTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
+	window.draw(sprite);
 
 	//GRID SIZE
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 200, "Grid Size");
-	Gwin.writeInt(Gwin.getWidth() / 2, 200, simulationSettings_.gridSize);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 220, Gwin.getWidth() / 2 + 100, 230);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.gridSize, 215, (Gwin.getWidth() / 2 - 100) + simulationSettings_.gridSize + 10, 235);
+	text.setPosition((windowSize.x / 2) - 100, 200);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Grid Size: " + simulationSettings_.gridSize);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		220);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		230));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.gridSize,
+		215);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.gridSize + 10,
+		235));
+	window.draw(reactangle);
 
 	//OBSTACLES
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 250, "Obstacles");
-	Gwin.writeInt(Gwin.getWidth() / 2, 250, simulationSettings_.numOfObstacles);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 270, Gwin.getWidth() / 2 + 100, 280);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfObstacles, 265, (Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfObstacles + 10, 285);
+	text.setPosition((windowSize.x / 2) - 100, 250);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Obstacles: " + simulationSettings_.numOfObstacles);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		270);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		280));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.numOfObstacles,
+		265);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.numOfObstacles + 10,
+		285));
+	window.draw(reactangle);
+
 
 	//FOOD
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 300, "Food");
-	Gwin.writeInt(Gwin.getWidth() / 2, 300, simulationSettings_.numOfFood);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 320, Gwin.getWidth() / 2 + 100, 330);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfFood, 315, (Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfFood + 10, 335);
+	text.setPosition((windowSize.x / 2) - 100, 300);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Food: " + simulationSettings_.numOfFood);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		320);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		330));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.numOfFood,
+		315);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.numOfFood + 10,
+		335));
+	window.draw(reactangle);
 
 	//PREDATORS
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 350, "Predators");
-	Gwin.writeInt(Gwin.getWidth() / 2, 350, simulationSettings_.numOfPred);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 370, Gwin.getWidth() / 2 + 100, 380);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfPred, 365, (Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfPred + 10, 385);
+	text.setPosition((windowSize.x / 2) - 100, 350);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Predators: " + simulationSettings_.numOfPred);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		370);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		380));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.numOfPred,
+		365);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.numOfPred + 10,
+		385));
+	window.draw(reactangle);
 
 	//PREY
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 400, "Prey");
-	Gwin.writeInt(Gwin.getWidth() / 2, 400, simulationSettings_.numOfPrey);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 420, Gwin.getWidth() / 2 + 100, 430);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfPrey, 415, (Gwin.getWidth() / 2 - 100) + simulationSettings_.numOfPrey + 10, 435);
+	text.setPosition((windowSize.x / 2) - 100, 400);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Prey: " + simulationSettings_.numOfPrey);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		420);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		430));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.numOfPrey,
+		415);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.numOfPrey + 10,
+		435));
+	window.draw(reactangle);
 
 	//TIME OUT
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 450, "Time Out x 100");
-	Gwin.writeInt(Gwin.getWidth() / 2, 450, simulationSettings_.simTimeOut);
-	Gwin.setPenColour(GRAY);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 470, Gwin.getWidth() / 2 + 100, 480);
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle((Gwin.getWidth() / 2 - 100) + simulationSettings_.simTimeOut, 465, (Gwin.getWidth() / 2 - 100) + simulationSettings_.simTimeOut + 10, 485);
+	text.setPosition((windowSize.x / 2) - 100, 450);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Time Out x 100: " + simulationSettings_.simTimeOut);
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color(34, 34, 34));
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		470);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		480));
+	window.draw(reactangle);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		(windowSize.x / 2) - 100 + simulationSettings_.simTimeOut,
+		465);
+	reactangle.setSize(sf::Vector2f(
+		(windowSize.x / 2 - 100) + simulationSettings_.simTimeOut + 10,
+		485));
+	window.draw(reactangle);
 
 	//INTELLIGENCE
-	Gwin.setPenColour(BLACK);
-	Gwin.writeText(Gwin.getWidth() / 2 - 100, 500, "Smart AI?");
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle(Gwin.getWidth() / 2 - 100, 520, Gwin.getWidth() / 2 + 100, 530);
+	text.setPosition((windowSize.x / 2) - 100, 500);
+	text.setFillColor(sf::Color::Black);
+	text.setString("Smart AI?");
+	window.draw(text);
+
+	reactangle.setFillColor(sf::Color::Black);
+	reactangle.setPosition(
+		windowSize.x / 2 - 100,
+		520);
+	reactangle.setSize(sf::Vector2f(
+		windowSize.x / 2 + 100,
+		530));
+	window.draw(reactangle);
+
 	if (simulationSettings_.intelligence == true)
 	{
-		Gwin.setPenColour(RED);
-		Gwin.outlineRectangle(Gwin.getWidth() / 2 - 100, 520, Gwin.getWidth() / 2 + 100, 530);
-		Gwin.writeText(Gwin.getWidth() / 2, 500, "ON");
-	}
-	else
-		Gwin.writeText(Gwin.getWidth() / 2, 500, "OFF");
 
+		reactangle.setOutlineColor(sf::Color::Red);
+		reactangle.setPosition(
+			windowSize.x / 2 - 100,
+			520);
+		reactangle.setSize(sf::Vector2f(
+			windowSize.x / 2 + 100,
+			530));
+		window.draw(reactangle);
+
+		text.setPosition((windowSize.x / 2), 500);
+		text.setFillColor(sf::Color::Red);
+		text.setString("ON");
+		window.draw(text);
+
+	}
+	else {
+		text.setPosition((windowSize.x / 2), 500);
+		text.setFillColor(sf::Color::Red);
+		text.setString("OFF");
+		window.draw(text);
+	}
 
 	//draw save button
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (save->getWidth() / 2)), Gwin.getHeight() - 100, save);
+	auto saveTexture = this->findTexture("save");
+	sprite.setTexture(*saveTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (saveTexture->getSize().x / 2), windowSize.y - 100);
+	window.draw(sprite);
 
-	if (!Mouse.isLeftDown())
+	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		isToggled_ = true;
+	}
 
-	if (Mouse.isLeftDown() && (Mouse.x > Gwin.getWidth() / 2 - 96) && (Mouse.x < Gwin.getWidth() / 2 + 106))
+	auto position = sf::Mouse::getPosition();
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+		(position.x > windowSize.x / 2 - 96) && (position.x < windowSize.x / 2 + 106))
 	{
-		if ((Mouse.y > 200) && (Mouse.y < 250)) // Grid Size
-			simulationSettings_.gridSize = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if ((Mouse.y > 250) && (Mouse.y < 300)) // Obstacles
-			simulationSettings_.numOfObstacles = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if ((Mouse.y > 300) && (Mouse.y < 350)) // Food
-			simulationSettings_.numOfFood = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if ((Mouse.y > 350) && (Mouse.y < 400)) // Predator
-			simulationSettings_.numOfPred = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if ((Mouse.y > 400) && (Mouse.y < 450)) // Prey
-			simulationSettings_.numOfPrey = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if ((Mouse.y > 450) && (Mouse.y < 500)) // Prey
-			simulationSettings_.simTimeOut = (Mouse.x - 5 - (Gwin.getWidth() / 2 - 100));
-		else if (((Mouse.y > 500) && (Mouse.y < 550)) && (isToggled_))
+		if ((position.y > 200) && (position.y < 250)) // Grid Size
+			simulationSettings_.gridSize = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if ((position.y > 250) && (position.y < 300)) // Obstacles
+			simulationSettings_.numOfObstacles = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if ((position.y > 300) && (position.y < 350)) // Food
+			simulationSettings_.numOfFood = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if ((position.y > 350) && (position.y < 400)) // Predator
+			simulationSettings_.numOfPred = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if ((position.y > 400) && (position.y < 450)) // Prey
+			simulationSettings_.numOfPrey = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if ((position.y > 450) && (position.y < 500)) // Prey
+			simulationSettings_.simTimeOut = (position.x - 5 - (windowSize.x / 2 - 100));
+		else if (((position.y > 500) && (position.y < 550)) && (isToggled_))
 		{
 			simulationSettings_.intelligence = !simulationSettings_.intelligence;
 			isToggled_ = false;

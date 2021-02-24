@@ -91,6 +91,9 @@ Environment::~Environment()
 }
 void Environment::drawSimulation(sf::RenderWindow& window)
 {
+	sf::Font font;
+	font.loadFromFile("assets/8bit.ttf");
+
 	double segmentPixelsW = (window.getView().getSize().x - WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
 	double segmentPixelsH = (window.getView().getSize().y - HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
 														//now allowing for a 50 pixel stats bar at the bottom
@@ -105,6 +108,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	//HEALTH BARS
 	float ySideBar = 5.0f;
 	sf::Text preyTotalText;
+	preyTotalText.setFont(font);
 	preyTotalText.setPosition(window.getView().getSize().x - 90, ySideBar);
 	preyTotalText.setFillColor(sf::Color::Blue);
 	preyTotalText.setString("Prey: " + std::to_string(getEntities().first));
@@ -114,6 +118,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	for(unsigned int idx = 0; idx < preyXY_.size(); ++idx)
 	{
 		sf::Text nameText;
+		nameText.setFont(font);
 		nameText.setPosition(window.getView().getSize().x - 95, ySideBar);
 		nameText.setFillColor(sf::Color::White);
 		nameText.setString(std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
@@ -142,6 +147,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 		window.draw(healthBarBox);
 
 		sf::Text messageText;
+		messageText.setFont(font);
 		messageText.setPosition(window.getView().getSize().x - 75, ySideBar);
 		messageText.setFillColor(sf::Color::White);
 		messageText.setString(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
@@ -152,6 +158,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 
 	ySideBar = 5.0f;
 	sf::Text predatorTotalText;
+	predatorTotalText.setFont(font);
 	predatorTotalText.setPosition(window.getView().getSize().x - 190, ySideBar);
 	predatorTotalText.setFillColor(sf::Color::Blue);
 	predatorTotalText.setString("Predators: " + std::to_string(getEntities().second));
@@ -161,6 +168,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	for(unsigned int idx = 0; idx < predXY_.size(); ++idx)
 	{
 		sf::Text nameText;
+		nameText.setFont(font);
 		nameText.setPosition(window.getView().getSize().x - 195, ySideBar);
 		nameText.setFillColor(sf::Color::White);
 		nameText.setString(std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
@@ -196,15 +204,16 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	unsigned int imageWidth = (window.getView().getSize().x - WIDTHBUFFER) / (gridSize_); // calculate the width of the segment in pixels
 	unsigned int imageHeight = (window.getView().getSize().y - HEIGHTBUFFER) / (gridSize_);// calculate the height of segement in pixel
 
-	sf::Sprite sprite;
-	sprite.scale(2.0f, 2.0f);
+
+
 	for(int idx = 0; idx < gridSize_; idx++)		//cycle through locations
 		for(int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
 		{
 
 			if(grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
 			{
-				
+				sf::Sprite sprite;
+				sprite.scale(2.0f, 2.0f);
 				sprite.setTexture(*_Rock);
 				sprite.setColor(sf::Color(255, 255, 255, 200));
 				sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
@@ -214,12 +223,15 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 			{
 				if(grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
 				{
+					sf::Sprite sprite;
+					sprite.scale(2.0f, 2.0f);
 					sprite.setTexture(*_Pred);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
 					window.draw(sprite);
 
 					sf::Text nameText;
+					nameText.setFont(font);
 					nameText.setPosition((idx - 1)* int(segmentPixelsW) + 8, jdx* int(segmentPixelsH));
 					nameText.setFillColor(sf::Color::White);
 					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier()));
@@ -227,12 +239,15 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
 				{
+					sf::Sprite sprite;
+					sprite.scale(2.0f, 2.0f);
 					sprite.setTexture(*_Prey);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
 					window.draw(sprite);
 
 					sf::Text nameText;
+					nameText.setFont(font);
 					nameText.setPosition((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH));
 					nameText.setFillColor(sf::Color::White);
 					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier()));
@@ -240,6 +255,8 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
 				{
+					sf::Sprite sprite;
+					sprite.scale(2.0f, 2.0f);
 					sprite.setTexture(*_Berry);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
@@ -247,6 +264,8 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				}
 				else
 				{
+					sf::Sprite sprite;
+					sprite.scale(2.0f, 2.0f);
 					sprite.setTexture(*_Grass);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));

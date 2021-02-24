@@ -55,6 +55,8 @@ private:
 	
 	bool gameEnd();
 
+	void showOption(sf::RenderWindow& window, std::string title, unsigned int value, float height) const;
+
 	std::shared_ptr<sf::Texture> loadTexture(std::string texturePath) const;
 	std::shared_ptr<sf::Texture> findTexture(std::string textureName) const;
 

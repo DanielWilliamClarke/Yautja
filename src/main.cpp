@@ -43,7 +43,6 @@ int main()
 		if (!menu.gameStarted) {
 			iterationCount = 0;
 			menu.drawMenu(*window);
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				auto position = sf::Mouse::getPosition(*window);
@@ -57,7 +56,7 @@ int main()
 			menu.legend(*window);
 
 			auto sleepTime = menu.statusBar(*window);
-			std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime + 200));
 
 			text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
 			window->draw(text);

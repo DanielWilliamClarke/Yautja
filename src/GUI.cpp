@@ -29,10 +29,10 @@ GUIsim::GUIsim()
 		{ "exit", this->loadTexture("assets/GUI/ExitButton.png") },
 		{ "table", this->loadTexture("assets/GUI/Table.png") },
 		{ "back", this->loadTexture("assets/GUI/BackButton.png") },
-		{ "prey", this->loadTexture("assets/Sprites/8bit prey.png") },
-		{ "pred", this->loadTexture("assets/Sprites/8bit pred.png") },
-		{ "berry", this->loadTexture("assets/Sprites/8bit berry.png") },
-		{ "rock", this->loadTexture("assets/Sprites/8bit rock.png") },
+		{ "prey", this->loadTexture("assets/Sprites/prey.png") },
+		{ "pred", this->loadTexture("assets/Sprites/pred.png") },
+		{ "berry", this->loadTexture("assets/Sprites/berry.png") },
+		{ "rock", this->loadTexture("assets/Sprites/rock.png") },
 		});
 }
 
@@ -48,10 +48,10 @@ std::shared_ptr<sf::Texture> GUIsim::findTexture(std::string textureName) const
 	return this->textures.at(textureName);
 }
 
-unsigned int GUIsim::statusBar(sf::RenderTarget& window)
+unsigned int GUIsim::statusBar(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
-	auto position = sf::Mouse::getPosition();
+	auto position = sf::Mouse::getPosition(window);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (position.y > windowSize.y - 80) && (position.y < windowSize.y - 50)
 		&& (position.x > (windowSize.x / 2) - 196) && (position.x < (windowSize.x / 2) + 206))
 	{
@@ -81,7 +81,7 @@ unsigned int GUIsim::statusBar(sf::RenderTarget& window)
 	return 400 - sleepSliderV_;
 }
 
-void GUIsim::legend(sf::RenderTarget& window)
+void GUIsim::legend(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	sf::Sprite sprite;
@@ -128,7 +128,7 @@ void GUIsim::legend(sf::RenderTarget& window)
 	window.draw(text);
 }
 
-void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderTarget& window)
+void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 
@@ -175,7 +175,7 @@ void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderTarget& window)
 	}
 }
 
-void GUIsim::drawMenu(sf::RenderTarget& window)
+void GUIsim::drawMenu(sf::RenderWindow& window)
 {
 	sf::Sprite sprite;
 	sprite.setTexture(*this->findTexture("background"));
@@ -197,49 +197,43 @@ void GUIsim::drawMenu(sf::RenderTarget& window)
 	}
 }
 
-void GUIsim::mainScreen_(sf::RenderTarget& window)
+void GUIsim::mainScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	sf::Sprite sprite;
 
 	auto mainTitleTexture = this->findTexture("mainTitle");
 	sprite.setTexture(*mainTitleTexture);
-	sprite.setColor(sf::Color(255, 255, 255, 200));
 	sprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
 	window.draw(sprite);
 
 	auto beginTexture = this->findTexture("begin");
 	sprite.setTexture(*beginTexture);
-	sprite.setColor(sf::Color(255, 255, 255, 200));
 	sprite.setPosition((windowSize.x / 2) - (beginTexture->getSize().x / 2), 200);
 	window.draw(sprite);
 
 	auto optionsTexture = this->findTexture("options");
 	sprite.setTexture(*optionsTexture);
-	sprite.setColor(sf::Color(255, 255, 255, 200));
 	sprite.setPosition((windowSize.x / 2) - (optionsTexture->getSize().x / 2), 260);
 	window.draw(sprite);
 
 	auto creditsTexture = this->findTexture("credits");
 	sprite.setTexture(*creditsTexture);
-	sprite.setColor(sf::Color(255, 255, 255, 200));
 	sprite.setPosition((windowSize.x / 2) - (creditsTexture->getSize().x / 2), 320);
 	window.draw(sprite);
 
 	sprite.setTexture(*this->findTexture("prey"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition(100, 500);
-	sprite.scale(4.0f, 4.0f);
+	sprite.setPosition((windowSize.x / 2) - 250, 500);
+	sprite.scale(10.0f, 10.0f);
 	window.draw(sprite);
 
 	sprite.setTexture(*this->findTexture("pred"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition(windowSize.x + 250, 500);
-	sprite.scale(4.0f, 4.0f);
+	sprite.setPosition((windowSize.x / 2) + 250, 500);
+	sprite.scale(10.0f, 10.0f);
 	window.draw(sprite);
 }
 
-void GUIsim::creditScreen_(sf::RenderTarget& window)
+void GUIsim::creditScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	sf::Sprite sprite;
@@ -272,7 +266,7 @@ void GUIsim::creditScreen_(sf::RenderTarget& window)
 	window.draw(sprite);
 }
 
-void GUIsim::optionScreen_(sf::RenderTarget& window)
+void GUIsim::optionScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	sf::RectangleShape reactangle;
@@ -481,7 +475,7 @@ void GUIsim::optionScreen_(sf::RenderTarget& window)
 		isToggled_ = true;
 	}
 
-	auto position = sf::Mouse::getPosition();
+	auto position = sf::Mouse::getPosition(window);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
 		(position.x > windowSize.x / 2 - 96) && (position.x < windowSize.x / 2 + 106))
 	{
@@ -519,7 +513,7 @@ bool GUIsim::isComplete(std::pair<unsigned int, unsigned int> entities, int iter
 		return false;//just carry on son
 }
 
-void GUIsim::endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, unsigned int> entities, int iterationCount)
+void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, unsigned int> entities, int iterationCount)
 {
 	auto windowSize = window.getView().getSize();
 
@@ -624,7 +618,7 @@ void GUIsim::endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, uns
 	sprite.setPosition((windowSize.x / 2) - (exitTexture->getSize().x / 2), windowSize.y - 100);
 	window.draw(sprite);
 
-	auto position = sf::Mouse::getPosition();
+	auto position = sf::Mouse::getPosition(window);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
 		(position.x > ((windowSize.x / 2) - (menuTexture->getSize().x / 2))) &&
 		((position.x < windowSize.x / 2) + (menuTexture->getSize().x / 2)))

@@ -7,7 +7,7 @@
 #include "environment.h"
 #include "artificial intelligence.h"
 
-Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderTarget& window)
+Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderWindow& window)
 {
 	int xTemp, yTemp;
 	srand(unsigned int(time(NULL)));
@@ -53,18 +53,16 @@ Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPre
 
 	populateGrid(prey, PreyPreferences, pred, PredPreferences);
 
-
-	_Grass->loadFromFile("assets/Sprites/8bit grass2.png");
-	_Berry->loadFromFile("assets/Sprites/8bit berry.png");
-	_Rock->loadFromFile("assets/Sprites/8bit rock.png");
-	_Prey->loadFromFile("assets/Sprites/8bit prey.png");
-	_Pred->loadFromFile("assets/Sprites/8bit pred.png");
-
-	//_Grass->resize(imageWidth, imageHeight);
-	//_Berry->resize(imageWidth, imageHeight);
-	//_Rock->resize(imageWidth, imageHeight);
-	//_Prey->resize(imageWidth, imageHeight);
-	//_Pred->resize(imageWidth, imageHeight);
+	_Grass = std::make_shared<sf::Texture>();
+	_Grass->loadFromFile("assets/Sprites/grass.png");
+	_Berry = std::make_shared<sf::Texture>();
+	_Berry->loadFromFile("assets/Sprites/berry.png");
+	_Rock = std::make_shared<sf::Texture>();
+	_Rock->loadFromFile("assets/Sprites/rock.png");
+	_Prey = std::make_shared<sf::Texture>();
+	_Prey->loadFromFile("assets/Sprites/prey.png");
+	_Pred = std::make_shared<sf::Texture>();
+	_Pred->loadFromFile("assets/Sprites/pred.png");
 
 	logFile_.open(std::string("NLS - ").append(NLS::timeString(time(NULL))).append(".txt").c_str());
 	logFile_ << "Simulation Started - " << NLS::timeString(time(NULL)) << std::endl;
@@ -91,7 +89,7 @@ Environment::~Environment()
 		grid_[idx].clearSegment();
 	}
 }
-void Environment::drawSimulation(sf::RenderTarget& window)
+void Environment::drawSimulation(sf::RenderWindow& window)
 {
 	double segmentPixelsW = (window.getView().getSize().x - WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
 	double segmentPixelsH = (window.getView().getSize().y - HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
@@ -197,13 +195,16 @@ void Environment::drawSimulation(sf::RenderTarget& window)
 	//ENVIRONMENT
 	unsigned int imageWidth = (window.getView().getSize().x - WIDTHBUFFER) / (gridSize_); // calculate the width of the segment in pixels
 	unsigned int imageHeight = (window.getView().getSize().y - HEIGHTBUFFER) / (gridSize_);// calculate the height of segement in pixel
+
+	sf::Sprite sprite;
+	sprite.scale(2.0f, 2.0f);
 	for(int idx = 0; idx < gridSize_; idx++)		//cycle through locations
 		for(int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
 		{
 
 			if(grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
 			{
-				sf::Sprite sprite;
+				
 				sprite.setTexture(*_Rock);
 				sprite.setColor(sf::Color(255, 255, 255, 200));
 				sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
@@ -213,7 +214,6 @@ void Environment::drawSimulation(sf::RenderTarget& window)
 			{
 				if(grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
 				{
-					sf::Sprite sprite;
 					sprite.setTexture(*_Pred);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
@@ -227,7 +227,6 @@ void Environment::drawSimulation(sf::RenderTarget& window)
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
 				{
-					sf::Sprite sprite;
 					sprite.setTexture(*_Prey);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
@@ -241,7 +240,6 @@ void Environment::drawSimulation(sf::RenderTarget& window)
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
 				{
-					sf::Sprite sprite;
 					sprite.setTexture(*_Berry);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
@@ -249,7 +247,6 @@ void Environment::drawSimulation(sf::RenderTarget& window)
 				}
 				else
 				{
-					sf::Sprite sprite;
 					sprite.setTexture(*_Grass);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));

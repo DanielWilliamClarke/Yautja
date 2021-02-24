@@ -16,10 +16,10 @@ class Environment
 public:
 	//allow for changes in options
 
-	Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderTarget& window);
+	Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderWindow& window);
 	~Environment();
 	void populateGrid(int NUMOFPREY, AIPreferences& PreyPreferences, int NUMOFPRED, AIPreferences& PredPreferences);
-	void drawSimulation(sf::RenderTarget& window);
+	void drawSimulation(sf::RenderWindow& window);
 	void iterateSimulation(int  gameCount);
 
 	std::pair<unsigned int, unsigned int> getEntities();

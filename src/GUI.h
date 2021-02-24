@@ -34,12 +34,12 @@ public:
 	bool simEnd;
 	bool simQuit;
 	GUIsim();
-	void mouseEvent(int mouseX, int mouseY, sf::RenderTarget& window);
+	void mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window);
 	simSettings getSettings();
-	void drawMenu(sf::RenderTarget& window);
-	unsigned int statusBar(sf::RenderTarget& window);
-	void endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, unsigned int> entities, int iterationCount);
-	void legend(sf::RenderTarget& window);
+	void drawMenu(sf::RenderWindow& window);
+	unsigned int statusBar(sf::RenderWindow& window);
+	void endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, unsigned int> entities, int iterationCount);
+	void legend(sf::RenderWindow& window);
 	void outPut(std::pair<unsigned int, unsigned int> entities, int iterationCount);
 	
 private:
@@ -49,9 +49,9 @@ private:
 	unsigned int defeatIteration_;
 	std::vector< std::pair<std::string, std::string> > teamAndRoles_;
 
-	void mainScreen_(sf::RenderTarget& window);
-	void optionScreen_(sf::RenderTarget& window);
-	void creditScreen_(sf::RenderTarget& window);
+	void mainScreen_(sf::RenderWindow& window);
+	void optionScreen_(sf::RenderWindow& window);
+	void creditScreen_(sf::RenderWindow& window);
 	
 	bool gameEnd();
 

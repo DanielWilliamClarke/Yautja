@@ -5,6 +5,7 @@
 // Date: 30/11/2011
 // Description: function library for the Environment class
 #include "environment.h"
+#include "artificial intelligence.h"
 
 Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderTarget& window)
 {
@@ -52,20 +53,18 @@ Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPre
 
 	populateGrid(prey, PreyPreferences, pred, PredPreferences);
 
-	_Grass = new GImage(GPath("Images/Sprites/8bit grass2.png").transform());
-	_Berry = new GImage(GPath("Images/Sprites/8bit berry.png").transform());
-	_Rock = new GImage(GPath("Images/Sprites/8bit rock.png").transform());
-	_Prey = new GImage(GPath("Images/Sprites/8bit prey.png").transform());
-	_Pred = new GImage(GPath("Images/Sprites/8bit pred.png").transform());
-	
-	unsigned int imageWidth = (window.getView().getSize().x-WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
-	unsigned int imageHeight = (window.getView().getSize().y-HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
 
-	_Grass->resize(imageWidth, imageHeight);
-	_Berry->resize(imageWidth, imageHeight);
-	_Rock->resize(imageWidth, imageHeight);
-	_Prey->resize(imageWidth, imageHeight);
-	_Pred->resize(imageWidth, imageHeight);
+	_Grass->loadFromFile("assets/Sprites/8bit grass2.png");
+	_Berry->loadFromFile("assets/Sprites/8bit berry.png");
+	_Rock->loadFromFile("assets/Sprites/8bit rock.png");
+	_Prey->loadFromFile("assets/Sprites/8bit prey.png");
+	_Pred->loadFromFile("assets/Sprites/8bit pred.png");
+
+	//_Grass->resize(imageWidth, imageHeight);
+	//_Berry->resize(imageWidth, imageHeight);
+	//_Rock->resize(imageWidth, imageHeight);
+	//_Prey->resize(imageWidth, imageHeight);
+	//_Pred->resize(imageWidth, imageHeight);
 
 	logFile_.open(std::string("NLS - ").append(NLS::timeString(time(NULL))).append(".txt").c_str());
 	logFile_ << "Simulation Started - " << NLS::timeString(time(NULL)) << std::endl;
@@ -87,92 +86,175 @@ Environment::~Environment()
 	logFile_ << "Total Iterations: " << currentIteration_ << std::endl;
 	logFile_.close();
 
-	delete _Grass;
-	delete _Berry;
-	delete _Rock;
-	delete _Prey;
-	delete _Pred;
-
-	for(unsigned int idx = 0; idx < grid_.size(); ++idx)
+	for (unsigned int idx = 0; idx < grid_.size(); ++idx)
+	{
 		grid_[idx].clearSegment();
+	}
 }
-void Environment::drawSimulation(GWindow &Gwin)
+void Environment::drawSimulation(sf::RenderTarget& window)
 {
-	double segmentPixelsW = (Gwin.getWidth()-WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
-	double segmentPixelsH = (Gwin.getHeight()-HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
+	double segmentPixelsW = (window.getView().getSize().x - WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
+	double segmentPixelsH = (window.getView().getSize().y - HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
 														//now allowing for a 50 pixel stats bar at the bottom
-	Gwin.setPenColour(BLACK);
-	Gwin.rectangle(0,0, Gwin.getWidth()-(WIDTHBUFFER-2), Gwin.getHeight()-(HEIGHTBUFFER-2));
+	sf::RectangleShape rectangle;
+	rectangle.setFillColor(sf::Color::Black);
+	rectangle.setPosition(0, 0);
+	rectangle.setSize(sf::Vector2f(
+		window.getView().getSize().x - (WIDTHBUFFER - 2),
+		window.getView().getSize().y - (HEIGHTBUFFER - 2)));
+	window.draw(rectangle);
 
 	//HEALTH BARS
-	Gwin.setPenColour(BLUE);
-	int ySideBar = 5;
-	Gwin.writeText(Gwin.getWidth()-90, ySideBar, "Prey: ");
-	Gwin.writeInt(getEntities().first);
-	ySideBar+=15;
+	float ySideBar = 5.0f;
+	sf::Text preyTotalText;
+	preyTotalText.setPosition(window.getView().getSize().x - 90, ySideBar);
+	preyTotalText.setFillColor(sf::Color::Blue);
+	preyTotalText.setString("Prey: " + std::to_string(getEntities().first));
+	window.draw(preyTotalText);
+	ySideBar+=15.0f;
+
 	for(unsigned int idx = 0; idx < preyXY_.size(); ++idx)
 	{
-		Gwin.setPenColour(WHITE);
-		Gwin.writeInt(Gwin.getWidth()-95, ySideBar, grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier());
-		if(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth() < 20)
-			Gwin.setPenColour(RED);
+		sf::Text nameText;
+		nameText.setPosition(window.getView().getSize().x - 95, ySideBar);
+		nameText.setFillColor(sf::Color::White);
+		nameText.setString(std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
+		window.draw(nameText);
+
+		sf::RectangleShape healthBar;
+		if (grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth() < 20) 
+		{
+			healthBar.setFillColor(sf::Color::Red);
+		}
 		else
-			Gwin.setPenColour(LIGHTGREEN);
-		Gwin.rectangle(Gwin.getWidth()-80, ySideBar, int((Gwin.getWidth()-80)+((75.0/100.0)*grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth())), ySideBar+10);
-		Gwin.setPenColour(BLACK);
-		Gwin.outlineRectangle(Gwin.getWidth()-80, ySideBar, Gwin.getWidth()-5, ySideBar+10);
-		Gwin.writeString(Gwin.getWidth()-75, ySideBar, grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
+		{
+			healthBar.setFillColor(sf::Color::Green);
+		}
+		auto healthBarX = window.getView().getSize().x - 80;
+		healthBar.setPosition(healthBarX, ySideBar);
+		healthBar.setSize(sf::Vector2f(
+			float(healthBarX + ((75.0 / 100.0) * grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth())),
+			ySideBar + 10));
+		window.draw(healthBar);
+
+		sf::RectangleShape healthBarBox;
+		healthBarBox.setPosition(healthBarX, ySideBar);
+		healthBarBox.setSize(sf::Vector2f(window.getView().getSize().x - 5, ySideBar + 10));
+		healthBarBox.setOutlineColor(sf::Color::Black);
+		window.draw(healthBarBox);
+
+		sf::Text messageText;
+		messageText.setPosition(window.getView().getSize().x - 75, ySideBar);
+		messageText.setFillColor(sf::Color::White);
+		messageText.setString(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
+		window.draw(messageText);
+
 		ySideBar+=15;
 	}
 
-	ySideBar = 5;
-	Gwin.setPenColour(RED);
-	Gwin.writeText(Gwin.getWidth()-190, ySideBar, "Predators: ");
-	Gwin.writeInt(getEntities().second);
+	ySideBar = 5.0f;
+	sf::Text predatorTotalText;
+	predatorTotalText.setPosition(window.getView().getSize().x - 190, ySideBar);
+	predatorTotalText.setFillColor(sf::Color::Blue);
+	predatorTotalText.setString("Predators: " + std::to_string(getEntities().second));
+	window.draw(predatorTotalText);
 	ySideBar+=15;
+
 	for(unsigned int idx = 0; idx < predXY_.size(); ++idx)
 	{
-		Gwin.setPenColour(WHITE);
-		Gwin.writeInt(Gwin.getWidth()-195, ySideBar, grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier());
-		if(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth() < 20)
-			Gwin.setPenColour(RED);
+		sf::Text nameText;
+		nameText.setPosition(window.getView().getSize().x - 195, ySideBar);
+		nameText.setFillColor(sf::Color::White);
+		nameText.setString(std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
+		window.draw(nameText);
+
+		sf::RectangleShape healthBar;
+		if (grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth() < 20)
+		{
+			healthBar.setFillColor(sf::Color::Red);
+		}
 		else
-			Gwin.setPenColour(LIGHTGREEN);
-		Gwin.rectangle(Gwin.getWidth()-180, ySideBar, int((Gwin.getWidth()-180)+((75.0/100.0)*grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth())), ySideBar+10);
-		Gwin.setPenColour(BLACK);
-		Gwin.outlineRectangle(Gwin.getWidth()-180, ySideBar, Gwin.getWidth()-105, ySideBar+10);
+		{
+			healthBar.setFillColor(sf::Color::Green);
+		}
+		auto healthBarX = window.getView().getSize().x - 180;
+		healthBar.setPosition(healthBarX, ySideBar);
+		healthBar.setSize(sf::Vector2f(
+			float(healthBarX + ((75.0 / 100.0) * grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth())),
+			ySideBar + 10));
+		window.draw(healthBar);
+
+
+		sf::RectangleShape healthBarBox;
+		healthBarBox.setPosition(healthBarX, ySideBar);
+		healthBarBox.setSize(sf::Vector2f(window.getView().getSize().x - 105, ySideBar + 10));
+		healthBarBox.setOutlineColor(sf::Color::Black);
+		window.draw(healthBarBox);
+
 		ySideBar+=15;
 	}
 
 	//ENVIRONMENT
+	unsigned int imageWidth = (window.getView().getSize().x - WIDTHBUFFER) / (gridSize_); // calculate the width of the segment in pixels
+	unsigned int imageHeight = (window.getView().getSize().y - HEIGHTBUFFER) / (gridSize_);// calculate the height of segement in pixel
 	for(int idx = 0; idx < gridSize_; idx++)		//cycle through locations
 		for(int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
 		{
 
 			if(grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
 			{
-				Gwin.drawImage(idx*int(segmentPixelsW), jdx*int(segmentPixelsH), _Rock);
+				sf::Sprite sprite;
+				sprite.setTexture(*_Rock);
+				sprite.setColor(sf::Color(255, 255, 255, 200));
+				sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
+				window.draw(sprite);
 			}
 			else
 			{
 				if(grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
 				{
-					Gwin.drawImage(idx*int(segmentPixelsW), jdx*int(segmentPixelsH), _Pred);
-					Gwin.setPenColour(WHITE);
-					Gwin.writeInt((idx-1)*int(segmentPixelsW)+8, jdx*int(segmentPixelsH), grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier());
+					sf::Sprite sprite;
+					sprite.setTexture(*_Pred);
+					sprite.setColor(sf::Color(255, 255, 255, 200));
+					sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
+					window.draw(sprite);
+
+					sf::Text nameText;
+					nameText.setPosition((idx - 1)* int(segmentPixelsW) + 8, jdx* int(segmentPixelsH));
+					nameText.setFillColor(sf::Color::White);
+					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier()));
+					window.draw(nameText);
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
 				{
-					Gwin.drawImage(idx*int(segmentPixelsW), jdx*int(segmentPixelsH), _Prey);
-					Gwin.setPenColour(WHITE);
-					Gwin.writeInt((idx-1)*int(segmentPixelsW)+8, jdx*int(segmentPixelsH), grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier());
+					sf::Sprite sprite;
+					sprite.setTexture(*_Prey);
+					sprite.setColor(sf::Color(255, 255, 255, 200));
+					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
+					window.draw(sprite);
+
+					sf::Text nameText;
+					nameText.setPosition((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH));
+					nameText.setFillColor(sf::Color::White);
+					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier()));
+					window.draw(nameText);
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
 				{
-					Gwin.drawImage(idx*int(segmentPixelsW), jdx*int(segmentPixelsH), _Berry);
+					sf::Sprite sprite;
+					sprite.setTexture(*_Berry);
+					sprite.setColor(sf::Color(255, 255, 255, 200));
+					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
+					window.draw(sprite);
 				}
 				else
-					Gwin.drawImage(idx*int(segmentPixelsW), jdx*int(segmentPixelsH), _Grass);
+				{
+					sf::Sprite sprite;
+					sprite.setTexture(*_Grass);
+					sprite.setColor(sf::Color(255, 255, 255, 200));
+					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
+					window.draw(sprite);
+				}
 			}
 		}
 }
@@ -319,7 +401,7 @@ void Environment::_pushSubScope(void)
 
 			switch(dirMsg.first)
 			{
-				case DEATH:
+			case DEATH:
 				logFile_ << "Predator " << grid_[(gridSize_ * aiX) + aiY].getPredator()->getIdenifier() << " died at iteration " << currentIteration_+1 << std::endl << std::endl;
 				delete grid_[(gridSize_ * aiX) + aiY].getPredator();
 				grid_[(gridSize_ * aiX) + aiY].setPredator(NULL);

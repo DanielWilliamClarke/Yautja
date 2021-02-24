@@ -4,7 +4,7 @@
 
 #include "lib.h"
 
-const int DEATH = -1;
+const int DEATH = 100;
 const int NORTH = 0;
 const int EAST = 1;
 const int SOUTH = 2;

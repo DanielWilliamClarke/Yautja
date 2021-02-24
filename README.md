@@ -1,4 +1,4 @@
-# Yuatja
+# Yautja
 
 - [Yuatja](#yuatja)
   - [Initial Plan](#initial-plan)

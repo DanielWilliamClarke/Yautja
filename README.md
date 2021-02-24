@@ -8,7 +8,8 @@
 
 - [x] Put CMake build so we can compile
 - [x] Put Conan in place to get dependencies
-- [ ] Replace GWIN with SFML
+- [x] Replace GWIN with SFML
+- [ ] Aggressively Refactor the code
 - [ ] Get the old team together maybe push this further than before?
 
 ## Install Conan packages, generate CMake files and build

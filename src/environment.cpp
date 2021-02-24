@@ -109,6 +109,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	float ySideBar = 5.0f;
 	sf::Text preyTotalText;
 	preyTotalText.setFont(font);
+	preyTotalText.setCharacterSize(10);
 	preyTotalText.setPosition(window.getView().getSize().x - 90, ySideBar);
 	preyTotalText.setFillColor(sf::Color::Blue);
 	preyTotalText.setString("Prey: " + std::to_string(getEntities().first));
@@ -119,6 +120,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	{
 		sf::Text nameText;
 		nameText.setFont(font);
+		nameText.setCharacterSize(10);
 		nameText.setPosition(window.getView().getSize().x - 95, ySideBar);
 		nameText.setFillColor(sf::Color::White);
 		nameText.setString(std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
@@ -136,18 +138,19 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 		auto healthBarX = window.getView().getSize().x - 80;
 		healthBar.setPosition(healthBarX, ySideBar);
 		healthBar.setSize(sf::Vector2f(
-			float(healthBarX + ((75.0 / 100.0) * grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth())),
-			ySideBar + 10));
+			float(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth()),
+			10.0f));
 		window.draw(healthBar);
 
 		sf::RectangleShape healthBarBox;
 		healthBarBox.setPosition(healthBarX, ySideBar);
-		healthBarBox.setSize(sf::Vector2f(window.getView().getSize().x - 5, ySideBar + 10));
+		healthBarBox.setSize(sf::Vector2f(100, 10));
 		healthBarBox.setOutlineColor(sf::Color::Black);
 		window.draw(healthBarBox);
 
 		sf::Text messageText;
 		messageText.setFont(font);
+		messageText.setCharacterSize(10);
 		messageText.setPosition(window.getView().getSize().x - 75, ySideBar);
 		messageText.setFillColor(sf::Color::White);
 		messageText.setString(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
@@ -159,6 +162,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	ySideBar = 5.0f;
 	sf::Text predatorTotalText;
 	predatorTotalText.setFont(font);
+	predatorTotalText.setCharacterSize(10);
 	predatorTotalText.setPosition(window.getView().getSize().x - 190, ySideBar);
 	predatorTotalText.setFillColor(sf::Color::Blue);
 	predatorTotalText.setString("Predators: " + std::to_string(getEntities().second));
@@ -169,6 +173,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	{
 		sf::Text nameText;
 		nameText.setFont(font);
+		nameText.setCharacterSize(10);
 		nameText.setPosition(window.getView().getSize().x - 195, ySideBar);
 		nameText.setFillColor(sf::Color::White);
 		nameText.setString(std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
@@ -186,14 +191,13 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 		auto healthBarX = window.getView().getSize().x - 180;
 		healthBar.setPosition(healthBarX, ySideBar);
 		healthBar.setSize(sf::Vector2f(
-			float(healthBarX + ((75.0 / 100.0) * grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth())),
-			ySideBar + 10));
+			float(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth()),
+			10));
 		window.draw(healthBar);
-
 
 		sf::RectangleShape healthBarBox;
 		healthBarBox.setPosition(healthBarX, ySideBar);
-		healthBarBox.setSize(sf::Vector2f(window.getView().getSize().x - 105, ySideBar + 10));
+		healthBarBox.setSize(sf::Vector2f(100, 10));
 		healthBarBox.setOutlineColor(sf::Color::Black);
 		window.draw(healthBarBox);
 
@@ -201,11 +205,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	}
 
 	//ENVIRONMENT
-	unsigned int imageWidth = (window.getView().getSize().x - WIDTHBUFFER) / (gridSize_); // calculate the width of the segment in pixels
-	unsigned int imageHeight = (window.getView().getSize().y - HEIGHTBUFFER) / (gridSize_);// calculate the height of segement in pixel
-
-
-
+	auto scale = 3.0f;
 	for(int idx = 0; idx < gridSize_; idx++)		//cycle through locations
 		for(int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
 		{
@@ -213,7 +213,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 			if(grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
 			{
 				sf::Sprite sprite;
-				sprite.scale(2.0f, 2.0f);
+				sprite.scale(scale, scale);
 				sprite.setTexture(*_Rock);
 				sprite.setColor(sf::Color(255, 255, 255, 200));
 				sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
@@ -224,7 +224,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				if(grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
 				{
 					sf::Sprite sprite;
-					sprite.scale(2.0f, 2.0f);
+					sprite.scale(scale, scale);
 					sprite.setTexture(*_Pred);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
@@ -232,15 +232,16 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 
 					sf::Text nameText;
 					nameText.setFont(font);
+					nameText.setCharacterSize(10);
 					nameText.setPosition((idx - 1)* int(segmentPixelsW) + 8, jdx* int(segmentPixelsH));
-					nameText.setFillColor(sf::Color::White);
+					nameText.setFillColor(sf::Color::Red);
 					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier()));
 					window.draw(nameText);
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
 				{
 					sf::Sprite sprite;
-					sprite.scale(2.0f, 2.0f);
+					sprite.scale(scale, scale);
 					sprite.setTexture(*_Prey);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
@@ -248,15 +249,16 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 
 					sf::Text nameText;
 					nameText.setFont(font);
+					nameText.setCharacterSize(10);
 					nameText.setPosition((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH));
-					nameText.setFillColor(sf::Color::White);
+					nameText.setFillColor(sf::Color::Blue);
 					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier()));
 					window.draw(nameText);
 				}
 				else if(grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
 				{
 					sf::Sprite sprite;
-					sprite.scale(2.0f, 2.0f);
+					sprite.scale(scale, scale);
 					sprite.setTexture(*_Berry);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
@@ -265,7 +267,7 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				else
 				{
 					sf::Sprite sprite;
-					sprite.scale(2.0f, 2.0f);
+					sprite.scale(scale, scale);
 					sprite.setTexture(*_Grass);
 					sprite.setColor(sf::Color(255, 255, 255, 200));
 					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));

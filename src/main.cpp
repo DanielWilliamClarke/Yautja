@@ -9,7 +9,7 @@
 int main()
 {
 	auto window = std::make_shared<sf::RenderWindow>(
-		sf::VideoMode(800, 700),
+		sf::VideoMode(1200, 1000),
 		"Yuatja",
 		sf::Style::Titlebar | sf::Style::Close);
 
@@ -56,7 +56,7 @@ int main()
 			menu.legend(*window);
 
 			auto sleepTime = menu.statusBar(*window);
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime + 200));
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 
 			text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
 			window->draw(text);

@@ -8,7 +8,7 @@
 
 #include "segment.h"
 
-#define WIDTHBUFFER 200
+#define WIDTHBUFFER 300
 #define HEIGHTBUFFER 100
 
 class Environment

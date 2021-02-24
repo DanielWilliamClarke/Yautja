@@ -52,31 +52,46 @@ unsigned int GUIsim::statusBar(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	auto position = sf::Mouse::getPosition(window);
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (position.y > windowSize.y - 80) && (position.y < windowSize.y - 50)
-		&& (position.x > (windowSize.x / 2) - 196) && (position.x < (windowSize.x / 2) + 206))
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+		(position.y > windowSize.y - 80) && (position.y < windowSize.y - 60) &&
+		(position.x > (windowSize.x / 2) - 200) &&
+		(position.x < (windowSize.x / 2) + 200))
 	{
-		sleepSliderV_ = (position.x - 5) - ((windowSize.x / 2) - 200);
+		sleepSliderV_ = position.x - ((windowSize.x / 2) - 200);
 	}
 
-	sf::Text text;
-	text.setPosition(windowSize.x / 2 - 200, windowSize.y - 85);
-	text.setFillColor(sf::Color::White);
-	text.setString("Soeed: " + std::to_string(sleepSliderV_));
-	window.draw(text);
+	sf::Font font;
+	font.loadFromFile("assets/8bit.ttf");
 
 	sf::RectangleShape bar;
 	bar.setFillColor(sf::Color(34, 34, 34));
-	bar.setPosition(windowSize.x / 2 - 200, windowSize.y - 70);
+	bar.setPosition(
+		windowSize.x / 2 - 200,
+		windowSize.y - 80);
 	bar.setSize(sf::Vector2f(
-		windowSize.x / 2 + 200, windowSize.y - 60));
+		400,
+		20));
 	window.draw(bar);
 
 	sf::RectangleShape handle;
 	handle.setFillColor(sf::Color::Green);
-	handle.setPosition((windowSize.x / 2 - 200) + sleepSliderV_, windowSize.y - 75);
+	handle.setPosition(
+		(windowSize.x / 2 - 200) + sleepSliderV_,
+		windowSize.y - 80);
 	handle.setSize(sf::Vector2f(
-		(windowSize.x / 2 + 200) + sleepSliderV_ + 10, windowSize.y - 55));
+		20,
+		20));
 	window.draw(handle);
+
+	sf::Text text;
+	text.setFont(font);
+	text.setCharacterSize(12);
+	text.setPosition(
+		windowSize.x / 2 - 200,
+		windowSize.y - 90);
+	text.setFillColor(sf::Color::White);
+	text.setString("Speed: " + std::to_string(sleepSliderV_));
+	window.draw(text);
 
 	return 400 - sleepSliderV_;
 }
@@ -84,48 +99,69 @@ unsigned int GUIsim::statusBar(sf::RenderWindow& window)
 void GUIsim::legend(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
-	sf::Sprite sprite;
-	sf::Text text;
+	auto scale = 3.0f;
+	sf::Font font;
+	font.loadFromFile("assets/8bit.ttf");
 
-	sprite.setTexture(*this->findTexture("prey"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition((windowSize.x / 2) - 60, windowSize.y - 30);
-	window.draw(sprite);
+	sf::Sprite preySprite;
+	preySprite.setTexture(*this->findTexture("prey"));
+	preySprite.scale(scale, scale);
+	preySprite.setColor(sf::Color(255, 255, 255, 200));
+	preySprite.setPosition(10, windowSize.y - 30);
+	window.draw(preySprite);
 
-	text.setPosition((windowSize.x / 2) - 100, windowSize.y - 30);
-	text.setFillColor(sf::Color::White);
-	text.setString("Prey");
-	window.draw(text);
+	sf::Text preyText;
+	preyText.setFont(font);
+	preyText.setCharacterSize(10);
+	preyText.setPosition(50, windowSize.y - 30);
+	preyText.setFillColor(sf::Color::White);
+	preyText.setString("Prey");
+	window.draw(preyText);
 
-	sprite.setTexture(*this->findTexture("pred"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition((windowSize.x / 2) - 30, windowSize.y - 30);
-	window.draw(sprite);
+	sf::Sprite predSprite;
+	predSprite.scale(scale, scale);
+	predSprite.setTexture(*this->findTexture("pred"));
+	predSprite.setColor(sf::Color(255, 255, 255, 200));
+	predSprite.setPosition((windowSize.x / 4), windowSize.y - 30);
+	window.draw(predSprite);
 
-	text.setPosition((windowSize.x / 2) - 30, windowSize.y - 30);
-	text.setFillColor(sf::Color::White);
-	text.setString("Predators");
-	window.draw(text);
+	sf::Text predText;
+	predText.setFont(font);
+	predText.setCharacterSize(10);
+	predText.setPosition((windowSize.x / 4) + 50, windowSize.y - 30);
+	predText.setFillColor(sf::Color::White);
+	predText.setString("Predators");
+	window.draw(predText);
 
-	sprite.setTexture(*this->findTexture("berry"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition((windowSize.x / 2) + 100, windowSize.y - 30);
-	window.draw(sprite);
+	sf::Sprite foodSprite;
+	foodSprite.scale(scale, scale);
+	foodSprite.setTexture(*this->findTexture("berry"));
+	foodSprite.setColor(sf::Color(255, 255, 255, 200));
+	foodSprite.setPosition((windowSize.x / 2), windowSize.y - 30);
+	window.draw(foodSprite);
 
-	text.setPosition((windowSize.x / 2) + 60, windowSize.y - 30);
-	text.setFillColor(sf::Color::White);
-	text.setString("Food");
-	window.draw(text);
+	sf::Text foodText;
+	foodText.setFont(font);
+	foodText.setCharacterSize(10);
+	foodText.setPosition((windowSize.x / 2) + 50, windowSize.y - 30);
+	foodText.setFillColor(sf::Color::White);
+	foodText.setString("Food");
+	window.draw(foodText);
 
-	sprite.setTexture(*this->findTexture("rock"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition((windowSize.x / 2) + 180, windowSize.y - 30);
-	window.draw(sprite);
+	sf::Sprite rockSprite;
+	rockSprite.scale(scale, scale);
+	rockSprite.setTexture(*this->findTexture("rock"));
+	rockSprite.setColor(sf::Color(255, 255, 255, 200));
+	rockSprite.setPosition((windowSize.x * 0.75), windowSize.y - 30);
+	window.draw(rockSprite);
 
-	text.setPosition((windowSize.x / 2) + 140, windowSize.y - 30);
-	text.setFillColor(sf::Color::White);
-	text.setString("Rock");
-	window.draw(text);
+	sf::Text rockText;
+	rockText.setFont(font);
+	rockText.setCharacterSize(10);
+	rockText.setPosition((windowSize.x * 0.75) + 50, windowSize.y - 30);
+	rockText.setFillColor(sf::Color::White);
+	rockText.setString("Rock");
+	window.draw(rockText);
 }
 
 void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window)
@@ -260,7 +296,7 @@ void GUIsim::creditScreen_(sf::RenderWindow& window)
 	{
 		sf::Text text;
 		text.setFont(font);
-		text.setCharacterSize(24);
+		text.setCharacterSize(10);
 		text.setPosition((windowSize.x / 2) - 175, 300 + (20 * idx));
 		text.setFillColor(sf::Color::White);
 		text.setString(teamAndRoles_[idx].first + ": " + teamAndRoles_[idx].second);
@@ -299,7 +335,7 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 	font.loadFromFile("assets/8bit.ttf");
 	sf::Text text;
 	text.setFont(font);
-	text.setScale(0.5, 0.5);
+	text.setCharacterSize(10);
 	text.setPosition((windowSize.x / 2) - 100, 500);
 	text.setFillColor(sf::Color::White);
 	text.setString("Smart AI?");
@@ -329,17 +365,17 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 
 		sf::Text onText;
 		onText.setFont(font);
-		onText.setScale(0.5, 0.5);
+		onText.setCharacterSize(10);
 		onText.setPosition((windowSize.x / 2), 520);
 		onText.setFillColor(sf::Color::Red);
 		onText.setString("ON");
 		window.draw(onText);
-
 	}
-	else {
+	else
+	{
 		sf::Text offText;
 		offText.setFont(font);
-		offText.setScale(0.5, 0.5);
+		offText.setCharacterSize(10);
 		offText.setPosition((windowSize.x / 2), 520);
 		offText.setFillColor(sf::Color::Red);
 		offText.setString("OFF");
@@ -361,14 +397,14 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 	auto position = sf::Mouse::getPosition(window);
 	auto maxSlide = 200;
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-		(position.x > (windowSize.x / 2) - 100) && 
+		(position.x > (windowSize.x / 2) - 100) &&
 		(position.x < (windowSize.x / 2) + 100))
 	{
 		if ((position.y > 220) && (position.y < 230)) // Grid Size
 		{
 			simulationSettings_.gridSize = position.x - ((windowSize.x / 2) - 100);
 		}
-			
+
 		else if ((position.y > 270) && (position.y < 280)) // Obstacles
 		{
 			simulationSettings_.numOfObstacles = position.x - ((windowSize.x / 2) - 100);
@@ -383,17 +419,17 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 		{
 			simulationSettings_.numOfPred = position.x - ((windowSize.x / 2) - 100);
 		}
-			
+
 		else if ((position.y > 420) && (position.y < 430)) // Prey
 		{
 			simulationSettings_.numOfPrey = position.x - ((windowSize.x / 2) - 100);
 		}
-			
+
 		else if ((position.y > 470) && (position.y < 480)) // Prey
 		{
 			simulationSettings_.simTimeOut = position.x - ((windowSize.x / 2) - 100);
 		}
-			
+
 		else if (((position.y > 520) && (position.y < 530)) && (isToggled_))
 		{
 			simulationSettings_.intelligence = !simulationSettings_.intelligence;
@@ -457,29 +493,28 @@ void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, uns
 
 	sf::Sprite bgSprite;
 	bgSprite.setTexture(*this->findTexture("background"));
-	bgSprite.setColor(sf::Color(255, 255, 255, 200));
 	bgSprite.setPosition(0, 0);
 	window.draw(bgSprite);
 
 	sf::Sprite mainSprite;
 	auto mainTitleTexture = this->findTexture("mainTitle");
 	mainSprite.setTexture(*mainTitleTexture);
-	mainSprite.setColor(sf::Color(255, 255, 255, 200));
 	mainSprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
 	window.draw(mainSprite);
 
-	sf::Sprite tableSprite;
-	auto tableTexture = this->findTexture("table");
-	tableSprite.setTexture(*tableTexture);
-	tableSprite.setColor(sf::Color(255, 255, 255, 200));
-	tableSprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
-	window.draw(tableSprite);
+	//sf::Sprite tableSprite;
+	//auto tableTexture = this->findTexture("table");
+	//tableSprite.setTexture(*tableTexture);
+	//tableSprite.setColor(sf::Color(255, 255, 255, 200));
+	//tableSprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
+	//window.draw(tableSprite);
 
 	sf::Font font;
 	font.loadFromFile("assets/8bit.ttf");
 	sf::Text text;
 	text.setFont(font);
-	text.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 300);
+	text.setCharacterSize(10);
+	text.setPosition(windowSize.x / 2, 200);
 	text.setString("Simulation Results");
 	window.draw(text);
 
@@ -487,13 +522,15 @@ void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, uns
 	{
 		sf::Text predText;
 		predText.setFont(font);
-		predText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		predText.setCharacterSize(10);
+		predText.setPosition(windowSize.x / 2, 225);
 		predText.setString(std::to_string(entities.second) + " Predators remained");
 		window.draw(predText);
 
 		sf::Text predTimeText;
 		predTimeText.setFont(font);
-		predTimeText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+		predTimeText.setCharacterSize(10);
+		predTimeText.setPosition(windowSize.x / 2, 250);
 		predTimeText.setString("last Prey killed at: ");
 		window.draw(predTimeText);
 	}
@@ -501,13 +538,15 @@ void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, uns
 	{
 		sf::Text preyText;
 		preyText.setFont(font);
-		preyText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		preyText.setCharacterSize(10);
+		preyText.setPosition(windowSize.x / 2, 275);
 		preyText.setString(std::to_string(entities.first) + " Prey Survived");
 		window.draw(preyText);
 
 		sf::Text predTimeText;
 		predTimeText.setFont(font);
-		predTimeText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+		predTimeText.setCharacterSize(10);
+		predTimeText.setPosition(windowSize.x / 2, 300);
 		predTimeText.setString("last Predator killed at: ");
 		window.draw(predTimeText);
 	}
@@ -515,76 +554,84 @@ void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, uns
 	{
 		sf::Text predText;
 		predText.setFont(font);
-		predText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 325);
+		predText.setCharacterSize(10);
+		predText.setPosition(windowSize.x / 2, 310);
 		predText.setString(std::to_string(entities.first) + " Prey Survived");
 		window.draw(predText);
 
 		sf::Text preyText;
 		predText.setFont(font);
-		preyText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 350);
+		predText.setCharacterSize(10);
+		preyText.setPosition(windowSize.x / 2, 320);
 		preyText.setString(std::to_string(entities.second) + " Predators remained");
 		window.draw(preyText);
 	}
 
 	sf::Text gameText;
 	gameText.setFont(font);
-	gameText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 375);
+	gameText.setCharacterSize(10);
+	gameText.setPosition(windowSize.x / 2, 330);
 	gameText.setString("Game Time: " + std::to_string(iterationCount) + " iterations");
 	window.draw(gameText);
 
 	sf::Text settingsText;
 	settingsText.setFont(font);
-	settingsText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 300);
+	settingsText.setCharacterSize(10);
+	settingsText.setPosition(windowSize.x / 2, 340);
 	settingsText.setString("Simulation Settings");
 	window.draw(settingsText);
 
 	sf::Text gridText;
 	gridText.setFont(font);
-	gridText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 325);
+	gridText.setCharacterSize(10);
+	gridText.setPosition(windowSize.x / 2, 350);
 	gridText.setString("GridSize: " + std::to_string(simulationSettings_.gridSize));
 	window.draw(gridText);
 
 	sf::Text obsText;
 	obsText.setFont(font);
-	obsText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 335);
+	obsText.setCharacterSize(10);
+	obsText.setPosition(windowSize.x / 2, 360);
 	obsText.setString("Obstacles: " + std::to_string(simulationSettings_.numOfObstacles));
 	window.draw(obsText);
 
 	sf::Text foodText;
 	foodText.setFont(font);
-	foodText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 345);
+	foodText.setCharacterSize(10);
+	foodText.setPosition(windowSize.x / 2, 370);
 	foodText.setString("Food: " + std::to_string(simulationSettings_.numOfFood));
 	window.draw(foodText);
 
 	sf::Text predsText;
 	predsText.setFont(font);
-	predsText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 355);
+	predsText.setCharacterSize(10);
+	predsText.setPosition(windowSize.x / 2, 380);
 	predsText.setString("Predators: " + std::to_string(simulationSettings_.numOfPred));
 	window.draw(predsText);
 
 	sf::Text preysText;
 	preysText.setFont(font);
-	preysText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 365);
+	preysText.setCharacterSize(10);
+	preysText.setPosition(windowSize.x / 2, 390);
 	preysText.setString("Prey: " + std::to_string(simulationSettings_.numOfPrey));
 	window.draw(preysText);
 
 	sf::Text timeoutText;
 	timeoutText.setFont(font);
-	timeoutText.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2) + 200, 375);
+	timeoutText.setCharacterSize(10);
+	timeoutText.setPosition(windowSize.x / 2, 400);
 	timeoutText.setString("Timeout: " + std::to_string(simulationSettings_.simTimeOut));
 	window.draw(timeoutText);
 
 	sf::Sprite menuSprite;
 	auto menuTexture = this->findTexture("menu");
 	menuSprite.setTexture(*menuTexture);
-	menuSprite.setColor(sf::Color(255, 255, 255, 200));
 	menuSprite.setPosition((windowSize.x / 2) - (menuTexture->getSize().x / 2), windowSize.y - 170);
 	window.draw(menuSprite);
 
 	sf::Sprite exitSprite;
 	auto exitTexture = this->findTexture("exit");
 	exitSprite.setTexture(*exitTexture);
-	exitSprite.setColor(sf::Color(255, 255, 255, 200));
 	exitSprite.setPosition((windowSize.x / 2) - (exitTexture->getSize().x / 2), windowSize.y - 100);
 	window.draw(exitSprite);
 

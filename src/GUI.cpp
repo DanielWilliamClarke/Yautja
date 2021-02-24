@@ -197,37 +197,82 @@ void GUIsim::drawMenu(sf::RenderTarget& window)
 	}
 }
 
-void GUIsim::mainScreen_(GWindow& Gwin)
+void GUIsim::mainScreen_(sf::RenderTarget& window)
 {
-	//Main Window Title
-	Gwin.drawImage(((Gwin.getWidth() / 2) - mainTitle->getWidth() / 2), 10, mainTitle);
+	auto windowSize = window.getView().getSize();
+	sf::Sprite sprite;
 
-	//draw menu images
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (begin->getWidth() / 2)), 200, begin);
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (options->getWidth() / 2)), 260, options);
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (credits->getWidth() / 2)), 320, credits);
+	auto mainTitleTexture = this->findTexture("mainTitle");
+	sprite.setTexture(*mainTitleTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
+	window.draw(sprite);
 
-	Gwin.drawImage(100, 500, _Prey2);
-	Gwin.drawImage(Gwin.getWidth() - 250, 500, _Pred2);
+	auto beginTexture = this->findTexture("begin");
+	sprite.setTexture(*beginTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (beginTexture->getSize().x / 2), 200);
+	window.draw(sprite);
 
+	auto optionsTexture = this->findTexture("options");
+	sprite.setTexture(*optionsTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (optionsTexture->getSize().x / 2), 260);
+	window.draw(sprite);
+
+	auto creditsTexture = this->findTexture("credits");
+	sprite.setTexture(*creditsTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (creditsTexture->getSize().x / 2), 320);
+	window.draw(sprite);
+
+	sprite.setTexture(*this->findTexture("prey"));
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition(100, 500);
+	sprite.scale(4.0f, 4.0f);
+	window.draw(sprite);
+
+	sprite.setTexture(*this->findTexture("pred"));
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition(windowSize.x + 250, 500);
+	sprite.scale(4.0f, 4.0f);
+	window.draw(sprite);
 }
-void GUIsim::creditScreen_(GWindow& Gwin)
-{
-	//Main Window Title
-	Gwin.drawImage(((Gwin.getWidth() / 2) - mainTitle->getWidth() / 2), 10, mainTitle);
-	Gwin.drawImage(((Gwin.getWidth() / 2) - table->getWidth() / 2), 210, table);
 
-	Gwin.setPenColour(WHITE);
+void GUIsim::creditScreen_(sf::RenderTarget& window)
+{
+	auto windowSize = window.getView().getSize();
+	sf::Sprite sprite;
+
+	auto mainTitleTexture = this->findTexture("mainTitle");
+	sprite.setTexture(*mainTitleTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
+	window.draw(sprite);
+
+	auto tableTexture = this->findTexture("table");
+	sprite.setTexture(*tableTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
+	window.draw(sprite);
+
+	sf::Text text;
 	for (unsigned int idx = 0; idx < teamAndRoles_.size(); ++idx)
 	{
-		Gwin.writeString((Gwin.getWidth() / 2) - 175, 300 + (20 * idx), teamAndRoles_[idx].first);
-		Gwin.writeString((Gwin.getWidth() / 2), 300 + (20 * idx), teamAndRoles_[idx].second);
+		text.setPosition((windowSize.x / 2) - 175, 300 + (20 * idx));
+		text.setFillColor(sf::Color::White);
+		text.setString(teamAndRoles_[idx].first + ": " + teamAndRoles_[idx].second);
+		window.draw(text);
 	}
 
-	Gwin.drawImage(((Gwin.getWidth() / 2) - (back->getWidth() / 2)), Gwin.getHeight() - 100, back);
+	auto backTexture = this->findTexture("back");
+	sprite.setTexture(*backTexture);
+	sprite.setColor(sf::Color(255, 255, 255, 200));
+	sprite.setPosition((windowSize.x / 2) - (backTexture->getSize().x / 2), windowSize.x - 100);
+	window.draw(sprite);
 }
 
-void GUIsim::optionScreen_(GWindow& Gwin)
+void GUIsim::optionScreen_(sf::RenderTarget& window)
 {
 	//Main Window Title
 	Gwin.drawImage(((Gwin.getWidth() / 2) - mainTitle->getWidth() / 2), 10, mainTitle);
@@ -343,7 +388,7 @@ bool GUIsim::isComplete(std::pair<unsigned int, unsigned int> entities, int iter
 		return false;//just carry on son
 }
 
-void GUIsim::endGameScreen(GWindow& Gwin, std::pair<unsigned int, unsigned int> entities, int iterationCount)
+void GUIsim::endGameScreen(sf::RenderTarget& window, std::pair<unsigned int, unsigned int> entities, int iterationCount)
 {
 	Gwin.drawImage(0, 0, background);
 	//Main Window Title

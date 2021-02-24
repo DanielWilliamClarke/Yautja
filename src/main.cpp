@@ -14,15 +14,12 @@ int main()
 		sf::Style::Titlebar | sf::Style::Close);
 
 	GUIsim menu;
-	Environment* level;
+	Environment* level = nullptr;
 
 	//initialise in order:	OOB, empty, prdPry, pryFod, pred, prey, food, energy, moveThreshold, scope, foodGain, conflict, intelligence
 	AIPreferences PreyPref = { 15, 5,	20,		100,	200,  50,	100,  1000,	  50,			 7,		20,		  -150 };		//structures for defining how AI behave
 	AIPreferences PredPref = { 15, 5,	150,	300,	0,   350,	5,    3300,	  50,			 11,	0,		   200 };		//means only one calcMove function needed
 	unsigned long iterationCount = 0;
-
-	PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
-	level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, *window);
 
 	sf::Text text;
 	text.setPosition(10.0f, 10.0f);
@@ -48,22 +45,34 @@ int main()
 				auto position = sf::Mouse::getPosition(*window);
 				menu.mouseEvent(position.x, position.y, *window);
 			}
-		}
-		else if(!menu.isComplete(level->getEntities(), iterationCount)) 
-		{
-			level->iterateSimulation(iterationCount++);
-			level->drawSimulation(*window);
-			menu.legend(*window);
 
-			auto sleepTime = menu.statusBar(*window);
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-
-			text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
-			window->draw(text);
+			if (menu.simEnd || !level) {
+				PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
+				level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, *window);
+				menu.simEnd = false;
+			}
 		}
-		else if (!menu.simEnd) 
-		{
-			menu.endGameScreen(*window, level->getEntities(), iterationCount);
+
+		if (menu.gameStarted) {
+			if (level)
+			{
+				if (!menu.isComplete(level->getEntities(), iterationCount))
+				{
+					level->iterateSimulation(iterationCount++);
+					level->drawSimulation(*window);
+					menu.legend(*window);
+
+					auto sleepTime = menu.statusBar(*window);
+					std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+
+					text.setString("Iteration: " + std::to_string(iterationCount) + " / " + std::to_string(menu.getSettings().simTimeOut * 100));
+					window->draw(text);
+				}
+				else if (!menu.simEnd)
+				{
+					menu.endGameScreen(*window, level->getEntities(), iterationCount);
+				}
+			}
 		}
 		window->display();
 	}

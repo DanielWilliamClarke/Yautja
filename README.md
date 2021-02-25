@@ -1,9 +1,12 @@
 # Yautja
 
-- [Yuatja](#yuatja)
+- [Yautja](#yautja)
   - [Initial Plan](#initial-plan)
   - [Install Conan packages](#install-conan-packages)
   - [You need to build this project using Visual Studio 2019](#you-need-to-build-this-project-using-visual-studio-2019)
+
+
+![](./src/assets/demo.gif)
 
 ## Initial Plan
 

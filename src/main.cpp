@@ -31,7 +31,8 @@ int main()
 		->AddTexture("prey", "assets/Sprites/prey.png")
 		->AddTexture("pred", "assets/Sprites/pred.png")
 		->AddTexture("berry", "assets/Sprites/berry.png")
-		->AddTexture("rock", "assets/Sprites/rock.png");
+		->AddTexture("rock", "assets/Sprites/rock.png")
+		->AddTexture("grass", "assets/Sprites/grass.png");
 
 	auto gfx = std::make_shared<SFMLGraphics>(*window, atlas);
 
@@ -68,11 +69,13 @@ int main()
 				menu.mouseEvent(position.x, position.y, *window);
 			}
 
-			if (menu.simEnd || !level) {
-				PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
-				level = new Environment(menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred, PreyPref, PredPref, *window);
-				menu.simEnd = false;
+			if (level) {
+				delete level;
+				level = nullptr;
 			}
+
+			PreyPref.smartAI = menu.getSettings().intelligence; //set AI Toggle
+			level = new Environment(gfx, PreyPref, PredPref, menu.getSettings().gridSize, menu.getSettings().numOfFood, menu.getSettings().numOfObstacles, menu.getSettings().numOfPrey, menu.getSettings().numOfPred);
 		}
 
 		if (menu.gameStarted) {

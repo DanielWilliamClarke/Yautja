@@ -6,12 +6,12 @@ GUIsim::GUIsim(std::shared_ptr<IGraphics> gfx)
 	: gfx(gfx)
 {
 	currentScreen_ = mainScreen;
-	simSettings defaultSettings = { 30, 50, 5, 10, 50, 20, false };
+	simSettings defaultSettings = { 30, 50, 5, 20, 50, 20, false };
 	simulationSettings_ = defaultSettings;
 	gameStarted = false;
 	simEnd = false;
 	simQuit = false;
-	sleepSliderV_ = 400;
+	sleepSliderV_ = 300;
 
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Aiden Gallagher", "Team Leader, Researcher"));
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Alex Rudd", "Programmer"));
@@ -20,35 +20,6 @@ GUIsim::GUIsim(std::shared_ptr<IGraphics> gfx)
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Lewis Kell", "Deputy Leader"));
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Michael Percivals", "Programmer"));
 	teamAndRoles_.push_back(std::pair<std::string, std::string>("Xiaorong Li", "Researcher"));
-
-	this->textures.insert({
-		{ "background", this->loadTexture("assets/GUI/Background.png") },
-		{ "begin", this->loadTexture("assets/GUI/BeginButton.png") },
-		{ "options", this->loadTexture("assets/GUI/OptionsButton.png") },
-		{ "credits", this->loadTexture("assets/GUI/CreditsButton.png") },
-		{ "mainTitle", this->loadTexture("assets/GUI/MainTitle.png") },
-		{ "save", this->loadTexture("assets/GUI/SaveButton.png") },
-		{ "menu", this->loadTexture("assets/GUI/ResetButton.png") },
-		{ "exit", this->loadTexture("assets/GUI/ExitButton.png") },
-		{ "table", this->loadTexture("assets/GUI/Table.png") },
-		{ "back", this->loadTexture("assets/GUI/BackButton.png") },
-		{ "prey", this->loadTexture("assets/Sprites/prey.png") },
-		{ "pred", this->loadTexture("assets/Sprites/pred.png") },
-		{ "berry", this->loadTexture("assets/Sprites/berry.png") },
-		{ "rock", this->loadTexture("assets/Sprites/rock.png") },
-		});
-}
-
-std::shared_ptr<sf::Texture> GUIsim::loadTexture(std::string texturePath) const
-{
-	auto texture = std::make_shared<sf::Texture>();
-	texture->loadFromFile(texturePath);
-	return texture;
-}
-
-std::shared_ptr<sf::Texture> GUIsim::findTexture(std::string textureName) const
-{
-	return this->textures.at(textureName);
 }
 
 unsigned int GUIsim::statusBar(sf::RenderWindow& window)
@@ -155,19 +126,19 @@ void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window)
 	switch (currentScreen_)
 	{
 	case mainScreen:
-		if ((mouseY > 200) && (mouseY < 200 + this->findTexture("begin")->getSize().y))
+		if ((mouseY > 200) && (mouseY < 200 + this->gfx->GetTextureHeight("begin")))
 			gameStarted = true;
-		else if ((mouseY > 260) && (mouseY < 250 + this->findTexture("options")->getSize().y))
+		else if ((mouseY > 260) && (mouseY < 250 + this->gfx->GetTextureHeight("options")))
 			currentScreen_ = optionScreen;
-		else if ((mouseY > 320) && (mouseY < 320 + this->findTexture("credits")->getSize().y))
+		else if ((mouseY > 320) && (mouseY < 320 + this->gfx->GetTextureHeight("credits")))
 			currentScreen_ = creditScreen;
 		break;
 	case optionScreen:
-		if ((mouseY > windowSize.y - 100) && (mouseY < windowSize.y - this->findTexture("back")->getSize().y))
+		if ((mouseY > windowSize.y - 100) && (mouseY < windowSize.y - this->gfx->GetTextureHeight("back")))
 			currentScreen_ = mainScreen;
 		break;
 	case creditScreen:
-		if ((mouseY > windowSize.y - 100) && (mouseY < windowSize.y - this->findTexture("back")->getSize().y))
+		if ((mouseY > windowSize.y - 100) && (mouseY < windowSize.y - this->gfx->GetTextureHeight("back")))
 			currentScreen_ = mainScreen;
 		break;
 	}
@@ -250,12 +221,9 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 
-	sf::Sprite mainSprite;
-	auto mainTitleTexture = this->findTexture("mainTitle");
-	mainSprite.setTexture(*mainTitleTexture);
-	mainSprite.setColor(sf::Color(255, 255, 255, 200));
-	mainSprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
-	window.draw(mainSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("mainTitle") / 2), 10),
+		"mainTitle");
 
 	this->showOption(window, "Grid Size", simulationSettings_.gridSize, 200);
 	this->showOption(window, "Obstacles", simulationSettings_.numOfObstacles, 250);
@@ -268,64 +236,46 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 	//INTELLIGENCE
 	sf::Font font;
 	font.loadFromFile("assets/8bit.ttf");
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(10);
-	text.setPosition((windowSize.x / 2) - 100, 500);
-	text.setFillColor(sf::Color::White);
-	text.setString("Smart AI?");
-	window.draw(text);
 
-	sf::RectangleShape rectangle;
-	rectangle.setFillColor(sf::Color::Black);
-	rectangle.setPosition(
-		windowSize.x / 2,
-		520);
-	rectangle.setSize(sf::Vector2f(
-		100,
-		20));
-	window.draw(rectangle);
+	this->gfx->DrawText(
+		sf::Vector2f((windowSize.x / 2) - 100, 500),
+		sf::Color::White,
+		10,
+		"Smart AI?");
+
+	this->gfx->DrawRectangle(
+		sf::Vector2f(windowSize.x / 2, 520),
+		sf::Vector2f(100, 20),
+		sf::Color::Black);
 
 	if (simulationSettings_.intelligence == true)
 	{
-		sf::RectangleShape handle;
-		handle.setOutlineColor(sf::Color::Red);
-		handle.setPosition(
-			windowSize.x / 2,
-			520);
-		handle.setSize(sf::Vector2f(
-			100,
-			20));
-		window.draw(handle);
+		this->gfx->DrawRectangle(
+			sf::Vector2f(windowSize.x / 2, 520),
+			sf::Vector2f(100, 20),
+			sf::Color::Red);
 
-		sf::Text onText;
-		onText.setFont(font);
-		onText.setCharacterSize(10);
-		onText.setPosition((windowSize.x / 2), 520);
-		onText.setFillColor(sf::Color::Red);
-		onText.setString("ON");
-		window.draw(onText);
+		this->gfx->DrawText(
+			sf::Vector2f((windowSize.x / 2), 520),
+			sf::Color::Red,
+			10,
+			"ON");
 	}
 	else
 	{
-		sf::Text offText;
-		offText.setFont(font);
-		offText.setCharacterSize(10);
-		offText.setPosition((windowSize.x / 2), 520);
-		offText.setFillColor(sf::Color::Red);
-		offText.setString("OFF");
-		window.draw(offText);
+		this->gfx->DrawText(
+			sf::Vector2f((windowSize.x / 2), 520),
+			sf::Color::Red,
+			10,
+			"OFF");
 	}
 
-	//draw save button
-	sf::Sprite saveSprite;
-	auto saveTexture = this->findTexture("save");
-	saveSprite.setTexture(*saveTexture);
-	saveSprite.setColor(sf::Color(255, 255, 255, 200));
-	saveSprite.setPosition((windowSize.x / 2) - (saveTexture->getSize().x / 2), windowSize.y - 100);
-	window.draw(saveSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("save") / 2), windowSize.y - 100),
+		"save");
 
-	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
 		isToggled_ = true;
 	}
 
@@ -375,37 +325,23 @@ void GUIsim::optionScreen_(sf::RenderWindow& window)
 
 void GUIsim::showOption(sf::RenderWindow& window, std::string title, unsigned int value, float height) const
 {
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
-
 	auto windowSize = window.getView().getSize();
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(10);
-	text.setPosition((windowSize.x / 2) - 100, height);
-	text.setFillColor(sf::Color::White);
-	text.setString(title + ": " + std::to_string(value));
-	window.draw(text);
 
-	sf::RectangleShape rectangle;
-	rectangle.setFillColor(sf::Color(100, 100, 100));
-	rectangle.setPosition(
-		(windowSize.x / 2) - 100,
-		height + 20);
-	rectangle.setSize(sf::Vector2f(
-		200,
-		10));
-	window.draw(rectangle);
-
-	sf::RectangleShape handle;
-	handle.setFillColor(sf::Color::Black);
-	handle.setPosition(
-		(windowSize.x / 2) - 100 + value,
-		height + 20);
-	handle.setSize(sf::Vector2f(
+	this->gfx->DrawText(
+		sf::Vector2f((windowSize.x / 2) - 100, height),
+		sf::Color::White,
 		10,
-		10));
-	window.draw(handle);
+		title + ": " + std::to_string(value));
+
+	this->gfx->DrawRectangle(
+		sf::Vector2f((windowSize.x / 2) - 100, height + 20),
+		sf::Vector2f(200, 10),
+		sf::Color(100, 100, 100));
+
+	this->gfx->DrawRectangle(
+		sf::Vector2f((windowSize.x / 2) - 100 + value, height + 20),
+		sf::Vector2f(10, 10),
+		sf::Color::Black);
 }
 
 simSettings GUIsim::getSettings()
@@ -419,174 +355,136 @@ bool GUIsim::isComplete(std::pair<unsigned int, unsigned int> entities, int iter
 	if ((entities.first == 0 && simulationSettings_.numOfPrey > 0) || (iterationCount == (simulationSettings_.simTimeOut * 100)) || (entities.second == 0 && simulationSettings_.numOfPred > 0))
 		return true;
 	else
-		return false;//just carry on son
+		return false; //just carry on son
 }
 
 void GUIsim::endGameScreen(sf::RenderWindow& window, std::pair<unsigned int, unsigned int> entities, int iterationCount)
 {
 	auto windowSize = window.getView().getSize();
 
-	sf::Sprite bgSprite;
-	bgSprite.setTexture(*this->findTexture("background"));
-	bgSprite.setPosition(0, 0);
-	window.draw(bgSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("mainTitle") / 2), 10),
+		"mainTitle");
 
-	sf::Sprite mainSprite;
-	auto mainTitleTexture = this->findTexture("mainTitle");
-	mainSprite.setTexture(*mainTitleTexture);
-	mainSprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
-	window.draw(mainSprite);
-
-	//sf::Sprite tableSprite;
-	//auto tableTexture = this->findTexture("table");
-	//tableSprite.setTexture(*tableTexture);
-	//tableSprite.setColor(sf::Color(255, 255, 255, 200));
-	//tableSprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
-	//window.draw(tableSprite);
-
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(10);
-	text.setPosition(windowSize.x / 2, 200);
-	text.setString("Simulation Results");
-	window.draw(text);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 200),
+		sf::Color::White,
+		10,
+		"Simulation Results");
 
 	if (entities.first == 0)
 	{
-		sf::Text predText;
-		predText.setFont(font);
-		predText.setCharacterSize(10);
-		predText.setPosition(windowSize.x / 2, 225);
-		predText.setString(std::to_string(entities.second) + " Predators remained");
-		window.draw(predText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 225),
+			sf::Color::White,
+			10,
+			std::to_string(entities.second) + " Predators remained");
 
-		sf::Text predTimeText;
-		predTimeText.setFont(font);
-		predTimeText.setCharacterSize(10);
-		predTimeText.setPosition(windowSize.x / 2, 250);
-		predTimeText.setString("last Prey killed at: ");
-		window.draw(predTimeText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 250),
+			sf::Color::White,
+			10,
+			"last Prey killed at: ");
 	}
 	else if (entities.second == 0)
 	{
-		sf::Text preyText;
-		preyText.setFont(font);
-		preyText.setCharacterSize(10);
-		preyText.setPosition(windowSize.x / 2, 275);
-		preyText.setString(std::to_string(entities.first) + " Prey Survived");
-		window.draw(preyText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 225),
+			sf::Color::White,
+			10,
+			std::to_string(entities.first) + " Prey Survived");
 
-		sf::Text predTimeText;
-		predTimeText.setFont(font);
-		predTimeText.setCharacterSize(10);
-		predTimeText.setPosition(windowSize.x / 2, 300);
-		predTimeText.setString("last Predator killed at: ");
-		window.draw(predTimeText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 250),
+			sf::Color::White,
+			10,
+			"last Predator killed at: ");
 	}
 	else
 	{
-		sf::Text predText;
-		predText.setFont(font);
-		predText.setCharacterSize(10);
-		predText.setPosition(windowSize.x / 2, 310);
-		predText.setString(std::to_string(entities.first) + " Prey Survived");
-		window.draw(predText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 225),
+			sf::Color::White,
+			10,
+			std::to_string(entities.first) + " Prey Survived");
 
-		sf::Text preyText;
-		predText.setFont(font);
-		predText.setCharacterSize(10);
-		preyText.setPosition(windowSize.x / 2, 320);
-		preyText.setString(std::to_string(entities.second) + " Predators remained");
-		window.draw(preyText);
+		this->gfx->DrawText(
+			sf::Vector2f(windowSize.x / 2, 250),
+			sf::Color::White,
+			10,
+			std::to_string(entities.second) + " Predators remained");
 	}
 
-	sf::Text gameText;
-	gameText.setFont(font);
-	gameText.setCharacterSize(10);
-	gameText.setPosition(windowSize.x / 2, 330);
-	gameText.setString("Game Time: " + std::to_string(iterationCount) + " iterations");
-	window.draw(gameText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 330),
+		sf::Color::White,
+		10,
+		"Game Time: " + std::to_string(iterationCount) + " iterations");
 
-	sf::Text settingsText;
-	settingsText.setFont(font);
-	settingsText.setCharacterSize(10);
-	settingsText.setPosition(windowSize.x / 2, 340);
-	settingsText.setString("Simulation Settings");
-	window.draw(settingsText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 340),
+		sf::Color::White,
+		10,
+		"Simulation Settings");
 
-	sf::Text gridText;
-	gridText.setFont(font);
-	gridText.setCharacterSize(10);
-	gridText.setPosition(windowSize.x / 2, 350);
-	gridText.setString("GridSize: " + std::to_string(simulationSettings_.gridSize));
-	window.draw(gridText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 350),
+		sf::Color::White,
+		10,
+		"GridSize: " + std::to_string(simulationSettings_.gridSize));
 
-	sf::Text obsText;
-	obsText.setFont(font);
-	obsText.setCharacterSize(10);
-	obsText.setPosition(windowSize.x / 2, 360);
-	obsText.setString("Obstacles: " + std::to_string(simulationSettings_.numOfObstacles));
-	window.draw(obsText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 360),
+		sf::Color::White,
+		10,
+		"Obstacles: " + std::to_string(simulationSettings_.numOfObstacles));
 
-	sf::Text foodText;
-	foodText.setFont(font);
-	foodText.setCharacterSize(10);
-	foodText.setPosition(windowSize.x / 2, 370);
-	foodText.setString("Food: " + std::to_string(simulationSettings_.numOfFood));
-	window.draw(foodText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 370),
+		sf::Color::White,
+		10,
+		"Food: " + std::to_string(simulationSettings_.numOfFood));
 
-	sf::Text predsText;
-	predsText.setFont(font);
-	predsText.setCharacterSize(10);
-	predsText.setPosition(windowSize.x / 2, 380);
-	predsText.setString("Predators: " + std::to_string(simulationSettings_.numOfPred));
-	window.draw(predsText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 380),
+		sf::Color::White,
+		10,
+		"Predators: " + std::to_string(simulationSettings_.numOfPred));
 
-	sf::Text preysText;
-	preysText.setFont(font);
-	preysText.setCharacterSize(10);
-	preysText.setPosition(windowSize.x / 2, 390);
-	preysText.setString("Prey: " + std::to_string(simulationSettings_.numOfPrey));
-	window.draw(preysText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 390),
+		sf::Color::White,
+		10,
+		"Prey: " + std::to_string(simulationSettings_.numOfPrey));
 
-	sf::Text timeoutText;
-	timeoutText.setFont(font);
-	timeoutText.setCharacterSize(10);
-	timeoutText.setPosition(windowSize.x / 2, 400);
-	timeoutText.setString("Timeout: " + std::to_string(simulationSettings_.simTimeOut));
-	window.draw(timeoutText);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2, 400),
+		sf::Color::White,
+		10,
+		"Timeout: " + std::to_string(simulationSettings_.simTimeOut));
 
-	sf::Sprite menuSprite;
-	auto menuTexture = this->findTexture("menu");
-	menuSprite.setTexture(*menuTexture);
-	menuSprite.setPosition((windowSize.x / 2) - (menuTexture->getSize().x / 2), windowSize.y - 170);
-	window.draw(menuSprite);
 
-	sf::Sprite exitSprite;
-	auto exitTexture = this->findTexture("exit");
-	exitSprite.setTexture(*exitTexture);
-	exitSprite.setPosition((windowSize.x / 2) - (exitTexture->getSize().x / 2), windowSize.y - 100);
-	window.draw(exitSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("menu") / 2), windowSize.y - 170),
+		"menu");
+
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("exit") / 2), windowSize.y - 100),
+		"exit");
 
 	auto position = sf::Mouse::getPosition(window);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-		(position.x > ((windowSize.x / 2) - (menuTexture->getSize().x / 2))) &&
-		((position.x < windowSize.x / 2) + (menuTexture->getSize().x / 2)))
+		(position.x > ((windowSize.x / 2) - (this->gfx->GetTextureWidth("menu") / 2))) &&
+		((position.x < windowSize.x / 2) + (this->gfx->GetTextureWidth("menu") / 2)))
 	{
-		if ((position.y > windowSize.y - 170) && (position.y < (windowSize.y - 170) + menuTexture->getSize().y)) // Menu Button
+		if ((position.y > windowSize.y - 170) && (position.y < (windowSize.y - 170) + this->gfx->GetTextureHeight("menu"))) // Menu Button
 		{
 			simEnd = true;
 			gameStarted = false;
 		}
-		else if ((position.y > windowSize.y - 100) && (position.y < (windowSize.y - 100) + exitTexture->getSize().y)) // Exit Button
+		else if ((position.y > windowSize.y - 100) && (position.y < (windowSize.y - 100) + this->gfx->GetTextureHeight("exit"))) // Exit Button
 		{
 			simEnd = simQuit = true;
 		}
 	}
-
 }
-
-
-

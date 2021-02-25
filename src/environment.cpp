@@ -7,45 +7,41 @@
 #include "environment.h"
 #include "artificial intelligence.h"
 
-Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, sf::RenderWindow& window)
+#include "util/IGraphics.h"
+
+Environment::Environment(std::shared_ptr<IGraphics> gfx, AIPreferences& PreyPreferences, AIPreferences& PredPreferences, int grid, int plant, int obs, int prey, int pred)
+	: gfx(gfx), gridSize_(grid), plants_(plant), obstacles_(obs)
 {
 	int xTemp, yTemp;
 	srand(unsigned int(time(NULL)));
-
-	gridSize_ = grid;
-	plants_ = plant;
-	obstacles_ = obs;
-
 
 	//resize environment grid
 	grid_.resize(NLS::pwr2(gridSize_));
 
 	//construct objects
-	for(int idx = 0; idx < obstacles_; idx++)
+	for (int idx = 0; idx < obstacles_; idx++)
 	{
 		do
 		{
-			xTemp = rand()%gridSize_;
-			yTemp = rand()%gridSize_;
-		}
-		while(grid_[(gridSize_ * (xTemp)) + yTemp].getObstacle() != NULL);
-		
+			xTemp = rand() % gridSize_;
+			yTemp = rand() % gridSize_;
+		} while (grid_[(gridSize_ * (xTemp)) + yTemp].getObstacle() != NULL);
+
 		grid_[(gridSize_ * (xTemp)) + yTemp].setObstacle(new Obstacle);
 	}
 
 	//construct food
 	foodXY_.resize(plants_);
-	for(int idx = 0; idx < plants_; ++idx)
+	for (int idx = 0; idx < plants_; ++idx)
 	{
 		do
 		{
-			xTemp = rand()%gridSize_;
-			yTemp = rand()%gridSize_;
-		}
-		while(grid_[(gridSize_ * (xTemp)) + yTemp].getFood() != NULL || (grid_[(gridSize_ * (xTemp)) + yTemp].getObstacle() != NULL));
+			xTemp = rand() % gridSize_;
+			yTemp = rand() % gridSize_;
+		} while (grid_[(gridSize_ * (xTemp)) + yTemp].getFood() != NULL || (grid_[(gridSize_ * (xTemp)) + yTemp].getObstacle() != NULL));
 
 		grid_[(gridSize_ * (xTemp)) + yTemp].setFood(new Food);
-		grid_[(gridSize_ * (xTemp)) + yTemp].getFood()->setTIP(rand()%30);
+		grid_[(gridSize_ * (xTemp)) + yTemp].getFood()->setTIP(rand() % 30);
 
 		foodXY_[idx].first = xTemp;
 		foodXY_[idx].second = yTemp;
@@ -53,29 +49,19 @@ Environment::Environment(int grid, int plant, int obs, int prey, int pred, AIPre
 
 	populateGrid(prey, PreyPreferences, pred, PredPreferences);
 
-	_Grass = std::make_shared<sf::Texture>();
-	_Grass->loadFromFile("assets/Sprites/grass.png");
-	_Berry = std::make_shared<sf::Texture>();
-	_Berry->loadFromFile("assets/Sprites/berry.png");
-	_Rock = std::make_shared<sf::Texture>();
-	_Rock->loadFromFile("assets/Sprites/rock.png");
-	_Prey = std::make_shared<sf::Texture>();
-	_Prey->loadFromFile("assets/Sprites/prey.png");
-	_Pred = std::make_shared<sf::Texture>();
-	_Pred->loadFromFile("assets/Sprites/pred.png");
-
 	logFile_.open(std::string("NLS - ").append(NLS::timeString(time(NULL))).append(".txt").c_str());
 	logFile_ << "Simulation Started - " << NLS::timeString(time(NULL)) << std::endl;
 	logFile_ << std::endl;
 	logFile_ << "SETTINGS" << std::endl;
 	logFile_ << "Grid Size: " << grid << std::endl
-			 << "Amount of food: " << plant << std::endl
-			 << "Number of Obstacles: " << obs << std::endl
-			 << "Number of Prey: " << prey << std::endl
-			 << "Amount of Predators: " << pred << std::endl
-			 << "Smart AI: " << PreyPreferences.smartAI << std::endl << std::endl;
+		<< "Amount of food: " << plant << std::endl
+		<< "Number of Obstacles: " << obs << std::endl
+		<< "Number of Prey: " << prey << std::endl
+		<< "Amount of Predators: " << pred << std::endl
+		<< "Smart AI: " << PreyPreferences.smartAI << std::endl << std::endl;
 
 }
+
 Environment::~Environment()
 {
 	logFile_ << std::endl << "Simulation Over." << std::endl;
@@ -91,190 +77,140 @@ Environment::~Environment()
 }
 void Environment::drawSimulation(sf::RenderWindow& window)
 {
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
+	auto windowSize = window.getView().getSize();
 
-	double segmentPixelsW = (window.getView().getSize().x - WIDTHBUFFER)/(gridSize_); // calculate the width of the segment in pixels
-	double segmentPixelsH = (window.getView().getSize().y - HEIGHTBUFFER)/(gridSize_);// calculate the height of segement in pixel
-														//now allowing for a 50 pixel stats bar at the bottom
-	sf::RectangleShape rectangle;
-	rectangle.setFillColor(sf::Color::Black);
-	rectangle.setPosition(0, 0);
-	rectangle.setSize(sf::Vector2f(
-		window.getView().getSize().x - (WIDTHBUFFER - 2),
-		window.getView().getSize().y - (HEIGHTBUFFER - 2)));
-	window.draw(rectangle);
+	double segmentPixelsW = (windowSize.x - WIDTHBUFFER) / (gridSize_); // calculate the width of the segment in pixels
+	double segmentPixelsH = (windowSize.y - HEIGHTBUFFER) / (gridSize_);// calculate the height of segement in pixel
+
+	auto textSize = 15;
+	auto barBuffer = 20;
+
+	this->gfx->DrawRectangle(
+		sf::Vector2f(0.0f, 0.0f),
+		sf::Vector2f(
+			windowSize.x - (WIDTHBUFFER - 2),
+			windowSize.y - (HEIGHTBUFFER - 2)),
+		sf::Color::Black);
+
+	auto healthBarX = windowSize.x - 250;
 
 	//HEALTH BARS
 	float ySideBar = 5.0f;
-	sf::Text preyTotalText;
-	preyTotalText.setFont(font);
-	preyTotalText.setCharacterSize(10);
-	preyTotalText.setPosition(window.getView().getSize().x - 90, ySideBar);
-	preyTotalText.setFillColor(sf::Color::Blue);
-	preyTotalText.setString("Prey: " + std::to_string(getEntities().first));
-	window.draw(preyTotalText);
-	ySideBar+=15.0f;
+	this->gfx->DrawText(
+		sf::Vector2f(healthBarX, ySideBar),
+		sf::Color::Blue,
+		textSize,
+		"Prey: " + std::to_string(getEntities().first));
 
-	for(unsigned int idx = 0; idx < preyXY_.size(); ++idx)
+	for (unsigned int idx = 0; idx < preyXY_.size(); ++idx)
 	{
-		sf::Text nameText;
-		nameText.setFont(font);
-		nameText.setCharacterSize(10);
-		nameText.setPosition(window.getView().getSize().x - 95, ySideBar);
-		nameText.setFillColor(sf::Color::White);
-		nameText.setString(std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
-		window.draw(nameText);
+		ySideBar += barBuffer;
+		this->gfx->DrawText(
+			sf::Vector2f(healthBarX, ySideBar),
+			sf::Color::Blue,
+			textSize,
+			std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
 
-		sf::RectangleShape healthBar;
-		if (grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth() < 20) 
-		{
-			healthBar.setFillColor(sf::Color::Red);
-		}
-		else
-		{
-			healthBar.setFillColor(sf::Color::Green);
-		}
-		auto healthBarX = window.getView().getSize().x - 80;
-		healthBar.setPosition(healthBarX, ySideBar);
-		healthBar.setSize(sf::Vector2f(
-			float(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth()),
-			10.0f));
-		window.draw(healthBar);
+		this->gfx->DrawRectangle(
+			sf::Vector2f(healthBarX + 20, ySideBar),
+			sf::Vector2f(
+				float(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth()),
+				textSize),
+			grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth() < 20 ? sf::Color::Red : sf::Color(34, 139, 34));
 
-		sf::RectangleShape healthBarBox;
-		healthBarBox.setPosition(healthBarX, ySideBar);
-		healthBarBox.setSize(sf::Vector2f(100, 10));
-		healthBarBox.setOutlineColor(sf::Color::Black);
-		window.draw(healthBarBox);
+		this->gfx->DrawText(
+			sf::Vector2f(healthBarX + 20, ySideBar),
+			sf::Color::White,
+			textSize,
+			grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
 
-		sf::Text messageText;
-		messageText.setFont(font);
-		messageText.setCharacterSize(10);
-		messageText.setPosition(window.getView().getSize().x - 75, ySideBar);
-		messageText.setFillColor(sf::Color::White);
-		messageText.setString(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
-		window.draw(messageText);
-
-		ySideBar+=15;
 	}
 
-	ySideBar = 5.0f;
-	sf::Text predatorTotalText;
-	predatorTotalText.setFont(font);
-	predatorTotalText.setCharacterSize(10);
-	predatorTotalText.setPosition(window.getView().getSize().x - 190, ySideBar);
-	predatorTotalText.setFillColor(sf::Color::Blue);
-	predatorTotalText.setString("Predators: " + std::to_string(getEntities().second));
-	window.draw(predatorTotalText);
-	ySideBar+=15;
+	ySideBar += barBuffer * 2;
 
-	for(unsigned int idx = 0; idx < predXY_.size(); ++idx)
+	this->gfx->DrawText(
+		sf::Vector2f(healthBarX, ySideBar),
+		sf::Color::Blue,
+		textSize,
+		"Predators: " + std::to_string(getEntities().second));
+
+	for (unsigned int idx = 0; idx < predXY_.size(); ++idx)
 	{
-		sf::Text nameText;
-		nameText.setFont(font);
-		nameText.setCharacterSize(10);
-		nameText.setPosition(window.getView().getSize().x - 195, ySideBar);
-		nameText.setFillColor(sf::Color::White);
-		nameText.setString(std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
-		window.draw(nameText);
+		ySideBar += barBuffer;
 
-		sf::RectangleShape healthBar;
-		if (grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth() < 20)
-		{
-			healthBar.setFillColor(sf::Color::Red);
-		}
-		else
-		{
-			healthBar.setFillColor(sf::Color::Green);
-		}
-		auto healthBarX = window.getView().getSize().x - 180;
-		healthBar.setPosition(healthBarX, ySideBar);
-		healthBar.setSize(sf::Vector2f(
-			float(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth()),
-			10));
-		window.draw(healthBar);
+		this->gfx->DrawText(
+			sf::Vector2f(healthBarX, ySideBar),
+			sf::Color::White,
+			textSize,
+			std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
 
-		sf::RectangleShape healthBarBox;
-		healthBarBox.setPosition(healthBarX, ySideBar);
-		healthBarBox.setSize(sf::Vector2f(100, 10));
-		healthBarBox.setOutlineColor(sf::Color::Black);
-		window.draw(healthBarBox);
-
-		ySideBar+=15;
+		this->gfx->DrawRectangle(
+			sf::Vector2f(healthBarX + 20, ySideBar),
+			sf::Vector2f(
+				float(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth()),
+				textSize),
+			grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth() < 20 ? sf::Color::Red : sf::Color(34, 139, 34));
 	}
 
 	//ENVIRONMENT
 	auto scale = 3.0f;
-	for(int idx = 0; idx < gridSize_; idx++)		//cycle through locations
-		for(int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
-		{
 
-			if(grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
+	std::string texture;
+	bool shouldDrawId;
+	unsigned int id;
+	sf::Color color;
+
+	for (int idx = 0; idx < gridSize_; idx++)		//cycle through locations
+	{
+		for (int jdx = 0; jdx < gridSize_; jdx++)	//in the Grid
+		{
+			shouldDrawId = false;
+			color = sf::Color::Transparent;
+			id = 0;
+
+			if (grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
 			{
-				sf::Sprite sprite;
-				sprite.scale(scale, scale);
-				sprite.setTexture(*_Rock);
-				sprite.setColor(sf::Color(255, 255, 255, 200));
-				sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
-				window.draw(sprite);
+				texture = "pred";
+				shouldDrawId = true;
+				color = sf::Color::Red;
+				id = grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier();
+
+			}
+			else if (grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
+			{
+				texture = "prey";
+				shouldDrawId = true;
+				color = sf::Color::Blue;
+				id = grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier();
+			}
+			else if (grid_[(gridSize_ * idx) + jdx].getObstacle() != NULL) //if !NULL draw obstacle
+			{
+				texture = "rock";
+			}
+			else if (grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
+			{
+
+				texture = "berry";
 			}
 			else
 			{
-				if(grid_[(gridSize_ * idx) + jdx].getPredator() != NULL) //if !NULL draw Predator
-				{
-					sf::Sprite sprite;
-					sprite.scale(scale, scale);
-					sprite.setTexture(*_Pred);
-					sprite.setColor(sf::Color(255, 255, 255, 200));
-					sprite.setPosition(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
-					window.draw(sprite);
+				texture = "grass";
+			}
 
-					sf::Text nameText;
-					nameText.setFont(font);
-					nameText.setCharacterSize(10);
-					nameText.setPosition((idx - 1)* int(segmentPixelsW) + 8, jdx* int(segmentPixelsH));
-					nameText.setFillColor(sf::Color::Red);
-					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPredator()->getIdenifier()));
-					window.draw(nameText);
-				}
-				else if(grid_[(gridSize_ * idx) + jdx].getPrey() != NULL)	//if !NULL draw Prey
-				{
-					sf::Sprite sprite;
-					sprite.scale(scale, scale);
-					sprite.setTexture(*_Prey);
-					sprite.setColor(sf::Color(255, 255, 255, 200));
-					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
-					window.draw(sprite);
+			this->gfx->DrawSprite(
+				sf::Vector2f(idx * int(segmentPixelsW), jdx * int(segmentPixelsH)),
+				texture,
+				scale);
 
-					sf::Text nameText;
-					nameText.setFont(font);
-					nameText.setCharacterSize(10);
-					nameText.setPosition((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH));
-					nameText.setFillColor(sf::Color::Blue);
-					nameText.setString(std::to_string(grid_[(gridSize_ * idx) + jdx].getPrey()->getIdenifier()));
-					window.draw(nameText);
-				}
-				else if(grid_[(gridSize_ * idx) + jdx].getFood() != NULL)	//if !NULL draw Food
-				{
-					sf::Sprite sprite;
-					sprite.scale(scale, scale);
-					sprite.setTexture(*_Berry);
-					sprite.setColor(sf::Color(255, 255, 255, 200));
-					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
-					window.draw(sprite);
-				}
-				else
-				{
-					sf::Sprite sprite;
-					sprite.scale(scale, scale);
-					sprite.setTexture(*_Grass);
-					sprite.setColor(sf::Color(255, 255, 255, 200));
-					sprite.setPosition(idx* int(segmentPixelsW), jdx* int(segmentPixelsH));
-					window.draw(sprite);
-				}
+			if (shouldDrawId) {
+				this->gfx->DrawText(
+					sf::Vector2f((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH)),
+					color,
+					10,
+					std::to_string(id));
 			}
 		}
+	}
 }
 
 void Environment::populateGrid(int numOfPrey, AIPreferences& PreyPreferences, int numOfPred, AIPreferences& PredPreferences)
@@ -283,29 +219,29 @@ void Environment::populateGrid(int numOfPrey, AIPreferences& PreyPreferences, in
 		gridX;
 	std::pair<int, int> tempXY;
 
-	for(int idx = 0; idx < numOfPrey; idx++)
+	for (int idx = 0; idx < numOfPrey; idx++)
 	{
-		do{
-			gridY = rand()%gridSize_;
-			gridX = rand()%(gridSize_-gridY);
-		}while((grid_[(gridSize_ * gridX) + gridY].getPrey() != NULL) || (grid_[(gridSize_ * gridX) + gridY].getObstacle() != NULL));
+		do {
+			gridY = rand() % gridSize_;
+			gridX = rand() % (gridSize_ - gridY);
+		} while ((grid_[(gridSize_ * gridX) + gridY].getPrey() != NULL) || (grid_[(gridSize_ * gridX) + gridY].getObstacle() != NULL));
 
-		Prey * newPrey = new Prey(PreyPreferences, idx+1);
+		Prey* newPrey = new Prey(PreyPreferences, idx + 1);
 		grid_[(gridSize_ * gridX) + gridY].setPrey(newPrey);
-		
+
 		tempXY.first = gridX;
 		tempXY.second = gridY;
 
 		preyXY_.push_back(tempXY);
 	}
-	for(int idx = 0; idx < numOfPred; idx++)
+	for (int idx = 0; idx < numOfPred; idx++)
 	{
-		do{
-			gridY = rand()%gridSize_;
-			gridX = (gridY==0) ? gridSize_-1 : (rand()%(gridY))+(gridSize_-gridY);
-		}while((grid_[(gridSize_ * gridX) + gridY].getPredator() != NULL) || (grid_[(gridSize_ * gridX) + gridY].getObstacle() != NULL));
+		do {
+			gridY = rand() % gridSize_;
+			gridX = (gridY == 0) ? gridSize_ - 1 : (rand() % (gridY)) + (gridSize_ - gridY);
+		} while ((grid_[(gridSize_ * gridX) + gridY].getPredator() != NULL) || (grid_[(gridSize_ * gridX) + gridY].getObstacle() != NULL));
 
-		Predator *newPred = new Predator(PredPreferences, idx+1);
+		Predator* newPred = new Predator(PredPreferences, idx + 1);
 		grid_[(gridSize_ * gridX) + gridY].setPredator(newPred);
 
 		tempXY.first = gridX;
@@ -323,19 +259,18 @@ void Environment::iterateSimulation(int gameCount)
 }
 
 void Environment::_manageFood(int gameCount)
-{	
-	int plantIdx = gameCount%plants_;
+{
+	int plantIdx = gameCount % plants_;
 	int tempX = foodXY_[plantIdx].first;
 	int tempY = foodXY_[plantIdx].second;
 
-	if(grid_[(gridSize_ * tempX) + tempY].getFood()->getTIP() < (gameCount - 30) && (0 == rand()%5))
+	if (grid_[(gridSize_ * tempX) + tempY].getFood()->getTIP() < (gameCount - 30) && (0 == rand() % 5))
 	{
 		do
 		{
-			tempX = rand()%gridSize_;
-			tempY = rand()%gridSize_;
-		}
-		while((grid_[(gridSize_ * (tempX)) + tempY].getFood() != NULL) || (grid_[(gridSize_ * (tempX)) + tempY].getObstacle() != NULL));
+			tempX = rand() % gridSize_;
+			tempY = rand() % gridSize_;
+		} while ((grid_[(gridSize_ * (tempX)) + tempY].getFood() != NULL) || (grid_[(gridSize_ * (tempX)) + tempY].getObstacle() != NULL));
 
 		grid_[(gridSize_ * (tempX)) + tempY].setFood(grid_[(gridSize_ * foodXY_[plantIdx].first) + foodXY_[plantIdx].second].getFood());
 		grid_[(gridSize_ * foodXY_[plantIdx].first) + foodXY_[plantIdx].second].setFood(NULL);
@@ -351,21 +286,21 @@ void Environment::_pushSubScope(void)
 	int aiX, aiY;
 	std::pair<unsigned int, std::string> dirMsg;
 
-	for(unsigned int idx = 0; idx < preyXY_.size(); idx++)	//in the Grid
+	for (unsigned int idx = 0; idx < preyXY_.size(); idx++)	//in the Grid
 	{
 		aiX = preyXY_[idx].first;
 		aiY = preyXY_[idx].second;
 
-		if(grid_[(gridSize_ * aiX) + aiY].getPrey() != NULL)					//if there is a Prey, calculate its next move
+		if (grid_[(gridSize_ * aiX) + aiY].getPrey() != NULL)					//if there is a Prey, calculate its next move
 		{
 			grid_[(gridSize_ * aiX) + aiY].setSubScope(_AIScopeSubArray(aiX, aiY, grid_[(gridSize_ * aiX) + aiY].getPrey()->getScope()));
 			dirMsg = grid_[(gridSize_ * aiX) + aiY].convertScopeToInt(grid_[(gridSize_ * aiX) + aiY].getPrey());
 			grid_[(gridSize_ * aiX) + aiY].clearSubScope();
 
-			switch(dirMsg.first)
+			switch (dirMsg.first)
 			{
 			case DEATH:
-				logFile_ << "Prey " << grid_[(gridSize_ * aiX) + aiY].getPrey()->getIdenifier() << " died at iteration " << currentIteration_+1 << std::endl;
+				logFile_ << "Prey " << grid_[(gridSize_ * aiX) + aiY].getPrey()->getIdenifier() << " died at iteration " << currentIteration_ + 1 << std::endl;
 				logFile_ << "last message was: \"" << dirMsg.second << "\"" << std::endl << std::endl;
 				delete grid_[(gridSize_ * aiX) + aiY].getPrey();
 				grid_[(gridSize_ * aiX) + aiY].setPrey(NULL);
@@ -406,21 +341,21 @@ void Environment::_pushSubScope(void)
 		}
 	}
 
-	for(unsigned int idx = 0; idx < predXY_.size(); idx++)	//in the Grid
+	for (unsigned int idx = 0; idx < predXY_.size(); idx++)	//in the Grid
 	{
 		aiX = predXY_[idx].first;
 		aiY = predXY_[idx].second;
 
-		if(grid_[(gridSize_ * aiX) + aiY].getPredator() != NULL)
+		if (grid_[(gridSize_ * aiX) + aiY].getPredator() != NULL)
 		{
 			grid_[(gridSize_ * aiX) + aiY].setSubScope(_AIScopeSubArray(aiX, aiY, grid_[(gridSize_ * aiX) + aiY].getPredator()->getScope()));
 			dirMsg = grid_[(gridSize_ * aiX) + aiY].convertScopeToInt(grid_[(gridSize_ * aiX) + aiY].getPredator());
 			grid_[(gridSize_ * aiX) + aiY].clearSubScope();
 
-			switch(dirMsg.first)
+			switch (dirMsg.first)
 			{
 			case DEATH:
-				logFile_ << "Predator " << grid_[(gridSize_ * aiX) + aiY].getPredator()->getIdenifier() << " died at iteration " << currentIteration_+1 << std::endl << std::endl;
+				logFile_ << "Predator " << grid_[(gridSize_ * aiX) + aiY].getPredator()->getIdenifier() << " died at iteration " << currentIteration_ + 1 << std::endl << std::endl;
 				delete grid_[(gridSize_ * aiX) + aiY].getPredator();
 				grid_[(gridSize_ * aiX) + aiY].setPredator(NULL);
 				predXY_.erase(predXY_.begin() + idx);
@@ -456,24 +391,25 @@ void Environment::_pushSubScope(void)
 std::vector<Segment> Environment::_AIScopeSubArray(int xPos, int yPos, int AIScope)
 {
 	std::vector<Segment> subScope;
-	int scopeRad = AIScope/2;
+	int scopeRad = AIScope / 2;
 
 	subScope.resize(NLS::pwr2(AIScope));
 
-	for(int idx = 0; idx < AIScope; idx++)
-		for(int jdx = 0; jdx < AIScope; jdx++)
+	for (int idx = 0; idx < AIScope; idx++)
+		for (int jdx = 0; jdx < AIScope; jdx++)
 		{
-			if((idx+(xPos-scopeRad) >= 0) && (idx+(xPos-scopeRad) < gridSize_) && (jdx+(yPos-scopeRad) >= 0) && (jdx+(yPos-scopeRad) < gridSize_))
+			if ((idx + (xPos - scopeRad) >= 0) && (idx + (xPos - scopeRad) < gridSize_) && (jdx + (yPos - scopeRad) >= 0) && (jdx + (yPos - scopeRad) < gridSize_))
 			{
-				subScope[(AIScope * idx) + jdx] = grid_[(gridSize_ * (idx+(xPos-scopeRad))) + (jdx+(yPos-scopeRad))];
+				subScope[(AIScope * idx) + jdx] = grid_[(gridSize_ * (idx + (xPos - scopeRad))) + (jdx + (yPos - scopeRad))];
 			}
 			else
 			{
 				subScope[(AIScope * idx) + jdx].setOOB(true);
 			}
 		}
-		return subScope;
+	return subScope;
 }
+
 std::pair<unsigned int, unsigned int> Environment::getEntities()
 {
 	return(std::pair<unsigned int, unsigned int>(preyXY_.size(), predXY_.size()));

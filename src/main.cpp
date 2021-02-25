@@ -5,6 +5,8 @@
 
 #include "environment.h"
 #include "GUI.h"
+#include "util/TextureAtlas.h"
+#include "util/SFMLGraphics.h"
 
 int main()
 {
@@ -13,7 +15,27 @@ int main()
 		"Yuatja",
 		sf::Style::Titlebar | sf::Style::Close);
 
-	GUIsim menu;
+
+	auto atlas = std::make_shared<TextureAtlas>();
+	atlas
+		->AddTexture("background", "assets/GUI/Background.png")
+		->AddTexture("begin", "assets/GUI/BeginButton.png")
+		->AddTexture("options", "assets/GUI/OptionsButton.png")
+		->AddTexture("credits", "assets/GUI/CreditsButton.png")
+		->AddTexture("mainTitle", "assets/GUI/MainTitle.png")
+		->AddTexture("save", "assets/GUI/SaveButton.png")
+		->AddTexture("menu", "assets/GUI/ResetButton.png")
+		->AddTexture("exit", "assets/GUI/ExitButton.png")
+		->AddTexture("table", "assets/GUI/Table.png")
+		->AddTexture("back", "assets/GUI/BackButton.png")
+		->AddTexture("prey", "assets/Sprites/prey.png")
+		->AddTexture("pred", "assets/Sprites/pred.png")
+		->AddTexture("berry", "assets/Sprites/berry.png")
+		->AddTexture("rock", "assets/Sprites/rock.png");
+
+	auto gfx = std::make_shared<SFMLGraphics>(*window, atlas);
+
+	GUIsim menu(gfx);
 	Environment* level = nullptr;
 
 	//initialise in order:	OOB, empty, prdPry, pryFod, pred, prey, food, energy, moveThreshold, scope, foodGain, conflict, intelligence

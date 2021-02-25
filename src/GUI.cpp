@@ -1,6 +1,9 @@
 #include "GUI.h"
 
-GUIsim::GUIsim()
+#include "util/IGraphics.h"
+
+GUIsim::GUIsim(std::shared_ptr<IGraphics> gfx)
+	: gfx(gfx)
 {
 	currentScreen_ = mainScreen;
 	simSettings defaultSettings = { 30, 50, 5, 10, 50, 20, false };
@@ -60,38 +63,21 @@ unsigned int GUIsim::statusBar(sf::RenderWindow& window)
 		sleepSliderV_ = position.x - ((windowSize.x / 2) - 200);
 	}
 
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
+	this->gfx->DrawRectangle(
+		sf::Vector2f(windowSize.x / 2 - 200, windowSize.y - 80),
+		sf::Vector2f(400, 20),
+		sf::Color(34, 34, 34));
 
-	sf::RectangleShape bar;
-	bar.setFillColor(sf::Color(34, 34, 34));
-	bar.setPosition(
-		windowSize.x / 2 - 200,
-		windowSize.y - 80);
-	bar.setSize(sf::Vector2f(
-		400,
-		20));
-	window.draw(bar);
+	this->gfx->DrawRectangle(
+		sf::Vector2f((windowSize.x / 2 - 200) + sleepSliderV_, windowSize.y - 80),
+		sf::Vector2f(20, 20),
+		sf::Color::Green);
 
-	sf::RectangleShape handle;
-	handle.setFillColor(sf::Color::Green);
-	handle.setPosition(
-		(windowSize.x / 2 - 200) + sleepSliderV_,
-		windowSize.y - 80);
-	handle.setSize(sf::Vector2f(
-		20,
-		20));
-	window.draw(handle);
-
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(12);
-	text.setPosition(
-		windowSize.x / 2 - 200,
-		windowSize.y - 90);
-	text.setFillColor(sf::Color::White);
-	text.setString("Speed: " + std::to_string(sleepSliderV_));
-	window.draw(text);
+	this->gfx->DrawText(
+		sf::Vector2f(windowSize.x / 2 - 200, windowSize.y - 90),
+		sf::Color::White,
+		12,
+		"Speed: " + std::to_string(sleepSliderV_));
 
 	return 400 - sleepSliderV_;
 }
@@ -100,79 +86,55 @@ void GUIsim::legend(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 	auto scale = 3.0f;
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
 
-	sf::Sprite preySprite;
-	preySprite.setTexture(*this->findTexture("prey"));
-	preySprite.scale(scale, scale);
-	preySprite.setColor(sf::Color(255, 255, 255, 200));
-	preySprite.setPosition(10, windowSize.y - 30);
-	window.draw(preySprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f(10, windowSize.y - 30),
+		std::string("prey"),
+		scale);
 
-	sf::Text preyText;
-	preyText.setFont(font);
-	preyText.setCharacterSize(10);
-	preyText.setPosition(50, windowSize.y - 30);
-	preyText.setFillColor(sf::Color::White);
-	preyText.setString("Prey");
-	window.draw(preyText);
+	this->gfx->DrawText(
+		sf::Vector2f(50, windowSize.y - 30),
+		sf::Color::White,
+		10,
+		std::string("Prey"));
 
-	sf::Sprite predSprite;
-	predSprite.scale(scale, scale);
-	predSprite.setTexture(*this->findTexture("pred"));
-	predSprite.setColor(sf::Color(255, 255, 255, 200));
-	predSprite.setPosition((windowSize.x / 4), windowSize.y - 30);
-	window.draw(predSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 4), windowSize.y - 30),
+		std::string("pred"),
+		scale);
 
-	sf::Text predText;
-	predText.setFont(font);
-	predText.setCharacterSize(10);
-	predText.setPosition((windowSize.x / 4) + 50, windowSize.y - 30);
-	predText.setFillColor(sf::Color::White);
-	predText.setString("Predators");
-	window.draw(predText);
+	this->gfx->DrawText(
+		sf::Vector2f((windowSize.x / 4) + 50, windowSize.y - 30),
+		sf::Color::White,
+		10,
+		std::string("Predators"));
 
-	sf::Sprite foodSprite;
-	foodSprite.scale(scale, scale);
-	foodSprite.setTexture(*this->findTexture("berry"));
-	foodSprite.setColor(sf::Color(255, 255, 255, 200));
-	foodSprite.setPosition((windowSize.x / 2), windowSize.y - 30);
-	window.draw(foodSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2), windowSize.y - 30),
+		std::string("berry"),
+		scale);
 
-	sf::Text foodText;
-	foodText.setFont(font);
-	foodText.setCharacterSize(10);
-	foodText.setPosition((windowSize.x / 2) + 50, windowSize.y - 30);
-	foodText.setFillColor(sf::Color::White);
-	foodText.setString("Food");
-	window.draw(foodText);
+	this->gfx->DrawText(
+		sf::Vector2f((windowSize.x / 2) + 50, windowSize.y - 30),
+		sf::Color::White,
+		10,
+		std::string("Food"));
 
-	sf::Sprite rockSprite;
-	rockSprite.scale(scale, scale);
-	rockSprite.setTexture(*this->findTexture("rock"));
-	rockSprite.setColor(sf::Color(255, 255, 255, 200));
-	rockSprite.setPosition((windowSize.x * 0.75), windowSize.y - 30);
-	window.draw(rockSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x * 0.75), windowSize.y - 30),
+		std::string("rock"),
+		scale);
 
-	sf::Text rockText;
-	rockText.setFont(font);
-	rockText.setCharacterSize(10);
-	rockText.setPosition((windowSize.x * 0.75) + 50, windowSize.y - 30);
-	rockText.setFillColor(sf::Color::White);
-	rockText.setString("Rock");
-	window.draw(rockText);
+	this->gfx->DrawText(
+		sf::Vector2f((windowSize.x * 0.75) + 50, windowSize.y - 30),
+		sf::Color::White,
+		10,
+		std::string("Rock"));
 }
 
 void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
-
-	sf::Sprite sprite;
-	sprite.setTexture(*this->findTexture("background"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition(0, 0);
-	window.draw(sprite);
 
 	switch (currentScreen_)
 	{
@@ -213,12 +175,6 @@ void GUIsim::mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window)
 
 void GUIsim::drawMenu(sf::RenderWindow& window)
 {
-	sf::Sprite sprite;
-	sprite.setTexture(*this->findTexture("background"));
-	sprite.setColor(sf::Color(255, 255, 255, 200));
-	sprite.setPosition(0, 0);
-	window.draw(sprite);
-
 	switch (currentScreen_)
 	{
 	case mainScreen:
@@ -236,79 +192,58 @@ void GUIsim::drawMenu(sf::RenderWindow& window)
 void GUIsim::mainScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
-	sf::Sprite mainTitleSprite;
-	auto mainTitleTexture = this->findTexture("mainTitle");
-	mainTitleSprite.setTexture(*mainTitleTexture);
-	mainTitleSprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
-	window.draw(mainTitleSprite);
 
-	sf::Sprite beginSprite;
-	auto beginTexture = this->findTexture("begin");
-	beginSprite.setTexture(*beginTexture);
-	beginSprite.setPosition((windowSize.x / 2) - (beginTexture->getSize().x / 2), 200);
-	window.draw(beginSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("mainTitle") / 2), 10),
+		"mainTitle");
 
-	sf::Sprite optionSprite;
-	auto optionsTexture = this->findTexture("options");
-	optionSprite.setTexture(*optionsTexture);
-	optionSprite.setPosition((windowSize.x / 2) - (optionsTexture->getSize().x / 2), 260);
-	window.draw(optionSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("begin") / 2), 200),
+		"begin");
 
-	sf::Sprite creditsSprite;
-	auto creditsTexture = this->findTexture("credits");
-	creditsSprite.setTexture(*creditsTexture);
-	creditsSprite.setPosition((windowSize.x / 2) - (creditsTexture->getSize().x / 2), 320);
-	window.draw(creditsSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("options") / 2), 260),
+		"options");
 
-	sf::Sprite preySprite;
-	preySprite.setTexture(*this->findTexture("prey"));
-	preySprite.setPosition((windowSize.x / 2) - 250, 500);
-	preySprite.scale(10.0f, 10.0f);
-	window.draw(preySprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("credits") / 2), 320),
+		"credits");
 
-	sf::Sprite predSprite;
-	predSprite.setTexture(*this->findTexture("pred"));
-	predSprite.setPosition((windowSize.x / 2) + 250, 500);
-	predSprite.scale(10.0f, 10.0f);
-	window.draw(predSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - 250, 500),
+		"prey",
+		10.0f);
+
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) + 250, 500),
+		"pred",
+		10.0f);
 }
 
 void GUIsim::creditScreen_(sf::RenderWindow& window)
 {
 	auto windowSize = window.getView().getSize();
 
-	sf::Sprite mainTitleSprite;
-	auto mainTitleTexture = this->findTexture("mainTitle");
-	mainTitleSprite.setTexture(*mainTitleTexture);
-	mainTitleSprite.setPosition((windowSize.x / 2) - (mainTitleTexture->getSize().x / 2), 10);
-	window.draw(mainTitleSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("mainTitle") / 2), 10),
+		"mainTitle");
 
-	sf::Sprite tableSprite;
-	auto tableTexture = this->findTexture("table");
-	tableSprite.setTexture(*tableTexture);
-	tableSprite.setPosition((windowSize.x / 2) - (tableTexture->getSize().x / 2), 210);
-	window.draw(tableSprite);
-
-	sf::Font font;
-	font.loadFromFile("assets/8bit.ttf");
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("table") / 2), 210),
+		"table");
 
 	for (unsigned int idx = 0; idx < teamAndRoles_.size(); ++idx)
 	{
-		sf::Text text;
-		text.setFont(font);
-		text.setCharacterSize(10);
-		text.setPosition((windowSize.x / 2) - 175, 300 + (20 * idx));
-		text.setFillColor(sf::Color::White);
-		text.setString(teamAndRoles_[idx].first + ": " + teamAndRoles_[idx].second);
-		window.draw(text);
+		this->gfx->DrawText(
+			sf::Vector2f((windowSize.x / 2) - 175, 300 + (20 * idx)),
+			sf::Color::White,
+			10,
+			teamAndRoles_[idx].first + ": " + teamAndRoles_[idx].second);
 	}
 
-	sf::Sprite backSprite;
-	auto backTexture = this->findTexture("back");
-	backSprite.setTexture(*backTexture);
-	backSprite.setColor(sf::Color(255, 255, 255, 200));
-	backSprite.setPosition((windowSize.x / 2) - (backTexture->getSize().x / 2), windowSize.y - 100);
-	window.draw(backSprite);
+	this->gfx->DrawSprite(
+		sf::Vector2f((windowSize.x / 2) - (this->gfx->GetTextureWidth("back") / 2), windowSize.y - 100),
+		"back");
 }
 
 void GUIsim::optionScreen_(sf::RenderWindow& window)

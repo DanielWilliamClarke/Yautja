@@ -24,16 +24,21 @@ struct simSettings {
 	bool intelligence;
 };
 
+class IGraphics;
 
 class GUIsim
 {
 public:
+
+	GUIsim(std::shared_ptr<IGraphics> gfx);
+	virtual ~GUIsim() = default;
+
 	//std::ofstream logFile_;
 	bool isComplete(std::pair<unsigned int, unsigned int> entities, int iterationCount);
 	bool gameStarted;
 	bool simEnd;
 	bool simQuit;
-	GUIsim();
+
 	void mouseEvent(int mouseX, int mouseY, sf::RenderWindow& window);
 	simSettings getSettings();
 	void drawMenu(sf::RenderWindow& window);
@@ -43,6 +48,9 @@ public:
 	void outPut(std::pair<unsigned int, unsigned int> entities, int iterationCount);
 	
 private:
+
+	std::shared_ptr<IGraphics> gfx;
+
 	ScreenTypes currentScreen_;
 	simSettings simulationSettings_;
 	unsigned int sleepSliderV_;

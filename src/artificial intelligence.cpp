@@ -102,7 +102,9 @@ std::pair<unsigned int, unsigned int> ArtIntell::calculateMovement(std::vector<u
 			case 7:		//Just Food
 				{
 					std::pair<std::vector<unsigned int>, unsigned int> temp;
-                    temp = AISpecificOperation(std::pair<std::vector<unsigned int>, std::vector<unsigned int> >(direction_, messages), std::pair<unsigned int, unsigned int>(idx, jdx), (memory_->front().first[(p_.scope * idx) + jdx])); 
+					auto dirMsg = std::pair<std::vector<unsigned int>, std::vector<unsigned int> >(direction_, messages);
+					auto XYpair = std::pair<unsigned int, unsigned int>(idx, jdx);
+					temp = AISpecificOperation(dirMsg, XYpair, memory_->front().first[(p_.scope * idx) + jdx]);
 					direction_ = temp.first;
 					msg = temp.second;
 					break;

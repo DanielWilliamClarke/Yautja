@@ -13,7 +13,7 @@ Environment::Environment(std::shared_ptr<IGraphics> gfx, AIPreferences& PreyPref
 	: gfx(gfx), gridSize_(grid), plants_(plant), obstacles_(obs)
 {
 	int xTemp, yTemp;
-	srand(unsigned int(time(NULL)));
+	srand(time(NULL));
 
 	//resize environment grid
 	grid_.resize(NLS::pwr2(gridSize_));
@@ -84,42 +84,39 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 
 	auto textSize = 15;
 	auto barBuffer = 20;
+	auto screenPosition = sf::Vector2f(0.0f, 0.0f);
+	auto screenSize = sf::Vector2f(windowSize.x - (WIDTHBUFFER - 2), windowSize.y - (HEIGHTBUFFER - 2));
 
-	this->gfx->DrawRectangle(
-		sf::Vector2f(0.0f, 0.0f),
-		sf::Vector2f(
-			windowSize.x - (WIDTHBUFFER - 2),
-			windowSize.y - (HEIGHTBUFFER - 2)),
-		sf::Color::Black);
+	this->gfx->DrawRectangle(screenPosition, screenSize, sf::Color::Black);
 
 	auto healthBarX = windowSize.x - 250;
+	auto ySideBar = 5.0f;
+	auto entityTextPosition = sf::Vector2f(healthBarX, ySideBar);
 
 	//HEALTH BARS
-	float ySideBar = 5.0f;
-	this->gfx->DrawText(
-		sf::Vector2f(healthBarX, ySideBar),
-		sf::Color::Blue,
-		textSize,
-		"Prey: " + std::to_string(getEntities().first));
+	this->gfx->DrawText(entityTextPosition, sf::Color::Blue, textSize, "Prey: " + std::to_string(getEntities().first));
 
 	for (unsigned int idx = 0; idx < preyXY_.size(); ++idx)
 	{
 		ySideBar += barBuffer;
+
+		auto idPosition = sf::Vector2f(healthBarX, ySideBar);
+		auto healthPosition = sf::Vector2f(healthBarX + 20, ySideBar);
+		auto healthSize = sf::Vector2f(float(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth()), textSize);
+
 		this->gfx->DrawText(
-			sf::Vector2f(healthBarX, ySideBar),
+			idPosition,
 			sf::Color::Blue,
 			textSize,
 			std::to_string(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getIdenifier()));
 
 		this->gfx->DrawRectangle(
-			sf::Vector2f(healthBarX + 20, ySideBar),
-			sf::Vector2f(
-				float(grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth()),
-				textSize),
+			healthPosition,
+			healthSize,
 			grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getPrey()->getHealth() < 20 ? sf::Color::Red : sf::Color(34, 139, 34));
 
 		this->gfx->DrawText(
-			sf::Vector2f(healthBarX + 20, ySideBar),
+			healthPosition,
 			sf::Color::White,
 			textSize,
 			grid_[(gridSize_ * preyXY_[idx].first) + preyXY_[idx].second].getMessage());
@@ -127,9 +124,10 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	}
 
 	ySideBar += barBuffer * 2;
+	entityTextPosition = sf::Vector2f(healthBarX, ySideBar);
 
 	this->gfx->DrawText(
-		sf::Vector2f(healthBarX, ySideBar),
+		entityTextPosition,
 		sf::Color::Blue,
 		textSize,
 		"Predators: " + std::to_string(getEntities().second));
@@ -138,17 +136,19 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 	{
 		ySideBar += barBuffer;
 
+		auto idPosition = sf::Vector2f(healthBarX, ySideBar);
+		auto healthPosition = sf::Vector2f(healthBarX + 20, ySideBar);
+		auto healthSize = sf::Vector2f(float(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth()), textSize);
+
 		this->gfx->DrawText(
-			sf::Vector2f(healthBarX, ySideBar),
+			idPosition,
 			sf::Color::White,
 			textSize,
 			std::to_string(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getIdenifier()));
 
 		this->gfx->DrawRectangle(
-			sf::Vector2f(healthBarX + 20, ySideBar),
-			sf::Vector2f(
-				float(grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth()),
-				textSize),
+			healthPosition,
+			healthSize,
 			grid_[(gridSize_ * predXY_[idx].first) + predXY_[idx].second].getPredator()->getHealth() < 20 ? sf::Color::Red : sf::Color(34, 139, 34));
 	}
 
@@ -197,17 +197,13 @@ void Environment::drawSimulation(sf::RenderWindow& window)
 				texture = "grass";
 			}
 
-			this->gfx->DrawSprite(
-				sf::Vector2f(idx * int(segmentPixelsW), jdx * int(segmentPixelsH)),
-				texture,
-				scale);
+			auto spritePosition = sf::Vector2f(idx * int(segmentPixelsW), jdx * int(segmentPixelsH));
+			auto idPosition = sf::Vector2f((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH));
+
+			this->gfx->DrawSprite(spritePosition, texture, scale);
 
 			if (shouldDrawId) {
-				this->gfx->DrawText(
-					sf::Vector2f((idx - 1) * int(segmentPixelsW) + 8, jdx * int(segmentPixelsH)),
-					color,
-					10,
-					std::to_string(id));
+				this->gfx->DrawText(idPosition, color, 10, std::to_string(id));
 			}
 		}
 	}

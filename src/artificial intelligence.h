@@ -49,8 +49,8 @@ public:
 	unsigned int getScope();
 	void setMemory(std::vector<unsigned int> newMemory);
 	unsigned int largestElement(std::vector<unsigned int>);
-	std::pair<unsigned int, unsigned int> ArtIntell::moveDeterminent(std::vector<unsigned int> newMemory, std::vector<unsigned int> messages);
-	std::pair<unsigned int, unsigned int> ArtIntell::calculateMovement(std::vector<unsigned int> messages);
+	std::pair<unsigned int, unsigned int> moveDeterminent(std::vector<unsigned int> newMemory, std::vector<unsigned int> messages);
+	std::pair<unsigned int, unsigned int> calculateMovement(std::vector<unsigned int> messages);
 	double getHealth();
 	int getIdenifier();
 };

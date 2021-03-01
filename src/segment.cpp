@@ -4,12 +4,11 @@
 // Version: 1.0
 // Date: 30/11/2011
 // Description: function library for the Segment class
-#pragma once
 #include "segment.h"
 
 Segment::Segment(void)
 {
-	srand(unsigned int(time(NULL)));
+	srand(time(NULL));
 	pry_ = NULL;
 	prd_ = NULL;
 	obs_ = NULL;

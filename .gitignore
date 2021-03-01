@@ -10,3 +10,4 @@
 /conan.lock
 /src/out/build/x64-Debug
 /src/out/build/x64-Release
+/src/*.txt
